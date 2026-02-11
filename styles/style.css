@@ -143,7 +143,7 @@ main {
 
 .CTA {
     flex: 1;
-    background: linear-gradient(199deg, var(--secondary-color) 15%, #bfddd2 50%, var(--primary-color) 85%);
+    background: linear-gradient(199deg, var(--secondary-color) 15%, #bfddd2 50%, var(--primary-color) 80%);
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
@@ -238,6 +238,38 @@ main {
 #signup_form p a {
     color: var(--secondary-color);
     text-decoration: none;
+}
+
+.log-in-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    padding: 3.5rem 5.5rem;
+    background-color: var(--background-color);
+    border-radius: 1.5rem;
+}
+
+.log-in-section h1 {
+    display: flex;
+    justify-content: center;
+}
+.log-in-section form {
+    margin: auto;
+}
+.log-in-section form .btn {
+    margin-top: 2rem;
+    width: 100%;
+}
+.log-in-section form p {
+    margin: 0 auto;
+    font-weight: 600;
+    margin-bottom: -1rem;
+    color: var(--primary-color--dark);
+}
+.log-in-section form p a {
+    color: var(--secondary-color);
+    text-decoration: none; 
 }
 @media (max-width: 768px) {
     .header_container {
