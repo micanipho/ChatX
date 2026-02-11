@@ -132,6 +132,10 @@ export class ChatService {
                 this.renderChatView(viewContainer, conv.name);
                 document.querySelectorAll('.chat-item').forEach(item => item.classList.remove('active'));
                 chatItem.classList.add('active');
+                
+                // Toggle Mobile View
+                const mainElement = document.querySelector('main');
+                if (mainElement) mainElement.classList.add('mobile-view-active');
             }; 
 
             const displayName = this.getUserDisplayName(conv);
@@ -165,6 +169,7 @@ export class ChatService {
 
         container.innerHTML = `
             <div class="chat-view-header">
+                <i class="ri-arrow-left-line back-btn" id="back-to-chats"></i>
                 <img src="${avatar}" alt="${displayName}" class="chat-view-avatar">
                 <div class="chat-view-info">
                     <h3>${displayName}</h3>
@@ -192,6 +197,15 @@ export class ChatService {
 
         const body = container.querySelector('#chat-messages-body');
         if (body) body.scrollTop = body.scrollHeight;
+
+        // Back Button Logic
+        const backBtn = container.querySelector('#back-to-chats');
+        if (backBtn) {
+            backBtn.addEventListener('click', () => {
+                const mainElement = document.querySelector('main');
+                if (mainElement) mainElement.classList.remove('mobile-view-active');
+            });
+        }
 
         const sendBtn = container.querySelector('#send-btn');
         const input = container.querySelector('#message-input');

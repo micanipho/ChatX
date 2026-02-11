@@ -208,3 +208,50 @@
 .message.sent .time {
     color: #e0e0e0;
 }
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    main {
+        position: relative; /* Context for absolute positioning if needed */
+    }
+
+    .messages-container {
+        width: 100%;
+        margin-left: 0; /* Override sidebar margin */
+        border-right: none;
+        display: flex; /* Default show */
+    }
+
+    .chat-view {
+        display: none; /* Default hide */
+        width: 100%;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+        background-color: #f9f9f9;
+    }
+
+    /* Active Chat State */
+    main.mobile-view-active .messages-container {
+        display: none;
+    }
+
+    main.mobile-view-active .chat-view {
+        display: flex;
+    }
+
+    /* Back Button */
+    .back-btn {
+        display: flex !important; /* Force show on mobile */
+        margin-right: 1rem;
+        font-size: 1.5rem;
+        cursor: pointer;
+        color: var(--primary-color--dark);
+    }
+}
+
+/* Hide Back Button on Desktop */
+.back-btn {
+    display: none;
+}
