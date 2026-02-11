@@ -228,18 +228,6 @@ main {
     width: 100%;
 }
 
-#signup_form p{
-    margin: 0 auto;
-    font-weight: 600;
-    margin-bottom: -1rem;
-    color: var(--primary-color--dark);
-}
-
-#signup_form p a {
-    color: var(--secondary-color);
-    text-decoration: none;
-}
-
 .log-in-section {
     display: flex;
     justify-content: center;
@@ -261,16 +249,24 @@ main {
     margin-top: 2rem;
     width: 100%;
 }
-.log-in-section form p {
+.form-query {
     margin: 0 auto;
     font-weight: 600;
     margin-bottom: -1rem;
     color: var(--primary-color--dark);
 }
-.log-in-section form p a {
+.form-query a {
     color: var(--secondary-color);
     text-decoration: none; 
 }
+
+.forms .errorBox {
+    color: rgb(247, 3, 3);
+    font-weight: 600;
+    width: 100%;
+    height: 1rem;
+}
+
 @media (max-width: 768px) {
     .header_container {
         flex-direction: column;

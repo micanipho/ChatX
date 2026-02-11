@@ -2,7 +2,6 @@ import { AuthService } from './services/AuthService.js';
 
 const authService = new AuthService();
 
-// Navbar Logic (Preserved)
 const menuBtn = document.getElementById('menu_btn');
 const navLinks = document.getElementById('nav_links');
 
@@ -23,6 +22,8 @@ navLinkItems?.forEach(link => {
 const startChatBtn = document.getElementById('start_chat_btn');
 const signupForm = document.getElementById('signup_form');
 const loginForm = document.getElementById('login_form');
+const errorBox = document.getElementsByClassName('errorBox')[0];
+const logoutBtn = document.getElementById('logout-btn');
 
 startChatBtn?.addEventListener('click', () => {
     window.location.href = 'pages/sign-up.html';
@@ -38,7 +39,8 @@ signupForm?.addEventListener('submit', (event) => {
         window.location.href = './log-in.html';
         signupForm.reset();
     } catch (error) {
-        alert(error.message);
+        console.log(error.message);
+        errorBox.textContent = error.message;
     }
 });
 
@@ -52,6 +54,13 @@ loginForm?.addEventListener('submit', (event) => {
         console.log('Logged in user:', user);
         window.location.href = './chat.html';
     } catch (error) {
-        alert(error.message);
+        console.log(error.message);
+        errorBox.textContent = error.message;
     }
+});
+
+logoutBtn?.addEventListener('click', () => {
+    authService.logout();
+    alert('You have been logged out successfully');
+    window.location.href = './log-in.html';
 });
