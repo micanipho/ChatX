@@ -1,0 +1,116 @@
+/* Authentication Pages (Login/Signup) */
+.title {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--primary-color--dark);
+}
+
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--primary-color--dark);
+}
+
+.CTA {
+    flex: 1;
+    background: linear-gradient(199deg, var(--secondary-color) 15%, #bfddd2 50%, var(--primary-color) 80%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 3rem;
+    padding-bottom: 12rem;
+    color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    backdrop-filter: blur(15px);
+}
+
+.cta-text-container {
+    padding: 0;
+}
+
+.cta-title {
+    font-size: 3.5rem;
+    font-weight: 300;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1;
+    background: linear-gradient(90deg, #ffffff 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.cta_nav_logo {
+    margin: 0 auto auto;
+}
+
+.subtitle {
+    font-size: 2.5rem;
+    font-style: italic;
+    font-weight: 200;
+    margin-top: 0;
+    background: linear-gradient(90deg, #ffffff 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background-color: var(--background-color);
+}
+
+.log-in-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin: auto;
+    padding: 3.5rem 5.5rem;
+    background-color: var(--background-color);
+    border-radius: 1.5rem;
+}
+
+.log-in-section h1 {
+    display: flex;
+    justify-content: center;
+}
+
+.log-in-section form {
+    margin: auto;
+}
+
+.log-in-section form .btn {
+    margin-top: 2rem;
+    width: 100%;
+}
+
+@media (max-width: 768px) {
+    .CTA {
+        min-height: 30vh;
+        padding: 2rem;
+        flex-shrink: 0;
+    }
+
+    .cta-title {
+        font-size: 2rem;
+    }
+
+    .cta_nav_logo {
+        justify-content: flex-start;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .form-container {
+        padding: 2rem;
+        flex: 1;
+    }
+}

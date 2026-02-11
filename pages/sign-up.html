@@ -4,10 +4,38 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>ChatX - Sign Up</title>
+    <title>Sign Up</title>
     <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/auth.css">
 </head>
 <body>
-    <h1>Sign Up</h1>
-</body> 
+    <main>
+    <div class="CTA">
+        <img src="../assets/icons/logo.png" alt="logo" class="cta_nav_logo">
+        <div class="cta-text-container">
+            <h1 class="cta-title">Welcome</h1>
+            <p class="subtitle">Let's get chatting!</p>
+        </div>
+    </div>
+    <div class="form-container">
+        <form class="forms" id="signup_form">
+            <h1 class="form-title">Create an account</h1>
+            <label for="fName">First Name</label>
+            <input type="text" placeholder="First Name" name="fName" id="fName" required>
+            <label for="lName">Last Name</label>
+            <input type="text" placeholder="Last Name" name="lName" id="lName" required>
+            <label for="username">Username</label>
+            <input type="text" placeholder="Username" name="username" id="username" required>
+            <label for="password">Password</label>
+            <input type="password" placeholder="Password" name="password" id="password" required>
+            <label for="confirmPassword">Confirm Password</label>
+            <input type="password" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" required>
+            <button type="submit" class="btn">Sign Up</button>
+            <p class="form-query">Already have an account? <a href="./log-in.html">Log In</a></p>
+            <p class="errorBox"></p>
+        </form>
+    </div>
+    </main>
+    <script type="module" src="../js/app.js"></script>
+</body>
 </html>

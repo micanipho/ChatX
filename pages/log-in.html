@@ -6,8 +6,24 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>ChatX - Log In</title>
     <link rel="stylesheet" href="../styles/style.css">
+    <link rel="stylesheet" href="../styles/auth.css">
 </head>
 <body>
-    <h1>Log In</h1>
+    <main class="CTA">
+        <img src="../assets/icons/logo.png" alt="logo" class="cta_nav_logo">
+        <section class="log-in-section">
+            <form class="forms" id="login_form">
+                <h1 class="form-title">Login to your account</h1>
+                <label for="username">Username</label>
+                <input type="text" placeholder="Username" name="username" id="username" required>
+                <label for="password">Password</label>
+                <input type="password" placeholder="Password" name="password" id="password" required>
+                <button type="submit" class="btn">Log In</button>
+                <p class="form-query">Don't have an account? <a href="./sign-up.html">Sign Up</a></p>
+                <p class="errorBox"></p>
+            </form>
+        </section>
+    </main>
+    <script type="module" src="../js/app.js"></script>
 </body> 
 </html>
