@@ -1,6 +1,8 @@
 import { AuthService } from './services/AuthService.js';
+import { ChatService } from './services/ChatService.js';
 
 const authService = new AuthService();
+const chatService = new ChatService();
 
 const menuBtn = document.getElementById('menu_btn');
 const navLinks = document.getElementById('nav_links');
@@ -59,8 +61,27 @@ loginForm?.addEventListener('submit', (event) => {
     }
 });
 
+const profileCircle = document.getElementById('profile-circle');
+if (profileCircle) {
+    const user = authService.getCurrentUser();
+    if (user) {
+        const initials = (user.firstName.charAt(0) + user.lastName.charAt(0)).toUpperCase();
+        profileCircle.textContent = initials;
+    }
+}
+
+
 logoutBtn?.addEventListener('click', () => {
     authService.logout();
     alert('You have been logged out successfully');
     window.location.href = './log-in.html';
 });
+
+// Chat Logic
+// Chat Logic
+const chatListContainer = document.querySelector('.chat-list');
+const chatViewContainer = document.querySelector('.chat-view');
+if (chatListContainer && chatViewContainer) {
+    chatService.renderChats(chatListContainer, chatViewContainer);
+}
+
