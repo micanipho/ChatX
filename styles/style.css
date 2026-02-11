@@ -1,7 +1,8 @@
-@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Space+Mono&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Space+Mono&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
 :root{
     --primary-color: #5C8374;
+    --primary-color--dark: #1B4242;
     --secondary-color: #9EC8B9;
     --accent-color: #F2E7D5;
     --text-color: #333;
@@ -11,10 +12,10 @@
 
 body {
     font-family: 'Montserrat', sans-serif;
-    height: 100vh;
+    min-height: 100vh;
     background-color: var(--background-color);
     margin: 0;
-    padding-top: 80px; 
+    padding: 0;
 }
 
 .section_container {
@@ -55,7 +56,7 @@ body {
     padding: 1rem 2rem;  
     font-size: 1rem;
     font-weight: 600;
-    background-color: var(--primary-color);
+    background-color: var(--primary-color--dark);
     color: var(--background-color);
     border: none;
     border-radius: 0.5rem;
@@ -120,50 +121,177 @@ nav {
     color: var(--primary-color);
 }
 
+.title {
+    text-align: center;
+    margin-top: 2rem;
+    color: var(--primary-color--dark);
+}
+
+main {
+    display: flex;
+    flex-direction: row;
+    height: 100vh;
+    width: 100%;
+    overflow: hidden;
+}
+.form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    color: var(--primary-color--dark);
+}
+
+.CTA {
+    flex: 1;
+    background: linear-gradient(199deg, var(--secondary-color) 15%, #bfddd2 50%, var(--primary-color) 85%);
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: flex-start;
+    padding: 3rem;
+    padding-bottom: 12rem;
+    color: var(--background-color);
+    font-family: 'Poppins', sans-serif;
+    backdrop-filter: blur(15px);
+}
+
+.cta-text-container {
+    padding: 0;
+}
+
+.cta-title {
+    font-size: 3.5rem;
+    font-weight: 300;
+    margin-top: 0;
+    margin-bottom: 0;
+    line-height: 1;
+    background: linear-gradient(90deg, #ffffff 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.subtitle {
+    font-size: 2.5rem;
+    font-style: italic;
+    font-weight: 200;
+    margin-top: 0;
+    background: linear-gradient(90deg, #ffffff 0%, var(--secondary-color) 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.form-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 3rem;
+    background-color: var(--background-color);
+}
+
+.forms {
+    width: 100%;
+    max-width: 450px;
+    display: flex;
+    flex-direction: column;
+    gap: 1.5rem;
+}
+
+.forms label {
+    font-weight: 600;
+    color: var(--text-color);
+    margin-bottom: -1rem;
+}
+
+.forms input {
+    padding: 0.75rem;
+    width: 100%;
+    font-size: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 0.5rem;
+    transition: border-color 0.3s ease;
+}
+
+.forms input:focus {
+    outline: none;
+    border-color: var(--primary-color);
+}
+
+.forms .btn {
+    margin-top: 1rem;
+    width: 100%;
+}
 @media (max-width: 768px) {
     .header_container {
-        flex-direction: column;  
-        min-height: 50vh; 
+        flex-direction: column;
+        min-height: 50vh;
     }
 
     .header_content h1 {
-        font-size: 2.5rem;  
+        font-size: 2.5rem;
     }
-    
+
     .header_content p {
         font-size: 1rem;
     }
 
+    main {
+        flex-direction: column;
+        height: 100vh;
+        overflow-y: auto;
+    }
+
+    .CTA {
+        min-height: 30vh;
+        padding: 2rem;
+        flex-shrink: 0;
+    }
+
+    .cta-title {
+        font-size: 2rem;
+    }
+
+    .subtitle {
+        font-size: 1rem;
+    }
+
+    .form-container {
+        padding: 2rem;
+        flex: 1;
+    }
+
     .nav_links {
         position: absolute;
-        top: 100%;            
+        top: 100%;
         left: 0;
         width: 100%;
         background-color: var(--background-color);
-        flex-direction: column; 
+        flex-direction: column;
         gap: 0;
         padding: 1rem 0;
         box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        max-height: 0;       
+        max-height: 0;
         overflow: hidden;
         transition: max-height 0.3s ease;
     }
-    
+
     .nav_links.active {
-        max-height: 300px;   
+        max-height: 300px;
     }
-    
+
     .nav_links li {
         width: 100%;
     }
-    
+
     .nav_links a {
         display: block;
         padding: 1rem 2rem;
         border-bottom: 1px solid #eee;
     }
-    
+
     .menu_btn {
-        display: block;       
+        display: block;
     }
 }

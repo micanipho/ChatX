@@ -2,6 +2,7 @@
 const menuBtn = document.getElementById('menu_btn');
 const navLinks = document.getElementById('nav_links');
 const startChatBtn = document.getElementById('start_chat_btn');
+const signupForm = document.getElementById('signup_form');
 
 menuBtn?.addEventListener('click', () => {
     navLinks?.classList.toggle('active');
@@ -19,3 +20,27 @@ navLinkItems?.forEach(link => {
         navLinks?.classList.remove('active');
     });
 });
+
+signupForm?.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const formData = new FormData(signupForm);
+    const data = Object.fromEntries(formData.entries());
+    
+    const allUsers = JSON.parse(localStorage.getItem('userData')) || {};
+
+    const username = data.username.trim();
+
+    if (allUsers[username]) {
+        console.log('Match found:', allUsers[username]);
+        alert('Username already exists. Please choose a different one.');
+        return; 
+    }
+
+    allUsers[username] = data;
+
+    localStorage.setItem('userData', JSON.stringify(allUsers));
+
+    console.log('User saved successfully');
+    signupForm.reset();
+});
+
