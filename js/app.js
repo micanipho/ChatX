@@ -31,8 +31,12 @@ signupForm?.addEventListener('submit', (event) => {
     const username = data.username.trim();
 
     if (allUsers[username]) {
-        console.log('Match found:', allUsers[username]);
         alert('Username already exists. Please choose a different one.');
+        return; 
+    }
+
+    if (data.password !== data.confirmPassword) {
+        alert('Passwords do not match. Please try again.');
         return; 
     }
 
@@ -40,7 +44,8 @@ signupForm?.addEventListener('submit', (event) => {
 
     localStorage.setItem('userData', JSON.stringify(allUsers));
 
-    console.log('User saved successfully');
+    window.location.href = './log-in.html';
+
     signupForm.reset();
 });
 

@@ -67,7 +67,7 @@ body {
 .btn:hover {
     background-color: var(--secondary-color);
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    box-shadow: 0 4px 12px var(--primary-color--dark);
 }
 
 .menu_btn {
@@ -171,6 +171,10 @@ main {
     background-clip: text;
 }
 
+.cta_nav_logo {
+    margin: 0 auto auto;
+}
+
 .subtitle {
     font-size: 2.5rem;
     font-style: italic;
@@ -201,7 +205,7 @@ main {
 
 .forms label {
     font-weight: 600;
-    color: var(--text-color);
+    color: var(--primary-color--dark);
     margin-bottom: -1rem;
 }
 
@@ -216,12 +220,24 @@ main {
 
 .forms input:focus {
     outline: none;
-    border-color: var(--primary-color);
+    border-color: var(--secondary-color);
 }
 
 .forms .btn {
     margin-top: 1rem;
     width: 100%;
+}
+
+#signup_form p{
+    margin: 0 auto;
+    font-weight: 600;
+    margin-bottom: -1rem;
+    color: var(--primary-color--dark);
+}
+
+#signup_form p a {
+    color: var(--secondary-color);
+    text-decoration: none;
 }
 @media (max-width: 768px) {
     .header_container {
@@ -251,6 +267,10 @@ main {
 
     .cta-title {
         font-size: 2rem;
+    }
+
+    .cta_nav_logo {
+        justify-content: flex-start;
     }
 
     .subtitle {
