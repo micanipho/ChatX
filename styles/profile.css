@@ -1,0 +1,88 @@
+/* Profile Page */
+.profile-container {
+    margin-left: 80px; 
+    padding: 2rem;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: var(--background-color);
+}
+
+.profile-card {
+    background-color: white;
+    padding: 3rem;
+    border-radius: 20px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+    text-align: center;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.profile-pic-wrapper {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    margin: 0 auto 1.5rem;
+}
+
+#profile-img-large, .profile-initials-large {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-initials-large {
+    background-color: var(--primary-color--dark);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 4rem;
+    font-weight: 600;
+}
+
+.edit-icon {
+    position: absolute;
+    bottom: 0;
+    right: 0;
+    background-color: var(--secondary-color);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    transition: transform 0.2s;
+    border: 2px solid white;
+}
+
+.edit-icon:hover {
+    transform: scale(1.1);
+}
+
+.edit-icon i {
+    color: var(--primary-color--dark);
+    font-size: 1.2rem;
+}
+
+#profile-name {
+    margin: 0 0 0.5rem;
+    color: var(--primary-color--dark);
+    font-size: 1.5rem;
+}
+
+#profile-username {
+    margin: 0;
+    color: #777;
+    font-size: 1rem;
+}
+
+.hidden {
+    display: none !important;
+}

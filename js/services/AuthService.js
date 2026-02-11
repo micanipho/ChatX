@@ -7,21 +7,22 @@ export class AuthService {
 
     register(userData) {
         const users = Storage.get(this.usersKey) || {};
-        const username = userData.username.trim();
+        const { username: rawUsername, password, confirmPassword, fName, lName } = userData;
+        const username = rawUsername.trim();
 
         if (users[username]) {
             throw new Error('Username already exists. Please choose a different one.');
         }
 
-        if (userData.password !== userData.confirmPassword) {
+        if (password !== confirmPassword) {
             throw new Error('Passwords do not match. Please try again.');
         }
 
         const newUser = new User(
             username,
-            userData.password,
-            userData.fName,
-            userData.lName
+            password,
+            fName,
+            lName
         );
 
         users[username] = newUser.toJSON();
