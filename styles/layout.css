@@ -140,7 +140,8 @@ main {
     main {
         flex-direction: column;
         height: 100vh;
-        overflow-y: auto;
+        /* Improve overflow handling */
+        overflow: hidden;
     }
 
     .nav_links {
@@ -167,12 +168,32 @@ main {
     }
 
     .nav_links a {
-        display: block;
+        display: flex;
+        align-items: center;
         padding: 1rem 2rem;
         border-bottom: 1px solid #eee;
+        /* Touch-friendly target */
+        min-height: 44px;
     }
 
     .side-bar {
         display: none;
+    }
+
+    /* Safe area adjustments for mobile */
+    .messages-container {
+        padding-left: max(1rem, env(safe-area-inset-left));
+        padding-right: max(1rem, env(safe-area-inset-right));
+    }
+}
+
+/* Additional mobile optimization for very small screens */
+@media (max-width: 480px) {
+    .section_container {
+        padding: 1rem;
+    }
+
+    .nav_header {
+        padding: 0.75rem 1rem;
     }
 }
