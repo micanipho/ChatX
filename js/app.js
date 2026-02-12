@@ -57,6 +57,75 @@ const handleAuth = (form, action, redirect) => {
 handleAuth(signupForm, (data) => authService.register(data), './log-in.html');
 handleAuth(loginForm, (data) => authService.login(data.username, data.password), './chat.html');
 
+// Forgot Password Logic
+const forgotPasswordForm = document.getElementById('forgot_password_form');
+if (forgotPasswordForm) {
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+    
+    const verifyUsernameBtn = document.getElementById('verify-username-btn');
+    const verifyAnswerBtn = document.getElementById('verify-answer-btn');
+    const displayQuestion = document.getElementById('display-question');
+    
+    let currentUsername = '';
+
+    verifyUsernameBtn?.addEventListener('click', () => {
+        const username = document.getElementById('username').value.trim();
+        if (!username) {
+            errorBox.textContent = 'Please enter a username.';
+            return;
+        }
+
+        try {
+            const question = authService.getSecurityQuestion(username);
+            currentUsername = username;
+            displayQuestion.textContent = question;
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            errorBox.textContent = '';
+        } catch (error) {
+            errorBox.textContent = error.message;
+        }
+    });
+
+    verifyAnswerBtn?.addEventListener('click', () => {
+        const answer = document.getElementById('securityAnswer').value.trim();
+        if (!answer) {
+            errorBox.textContent = 'Please provide an answer.';
+            return;
+        }
+
+        try {
+            authService.verifySecurityAnswer(currentUsername, answer);
+            step2.classList.add('hidden');
+            step3.classList.remove('hidden');
+            errorBox.textContent = '';
+        } catch (error) {
+            errorBox.textContent = error.message;
+        }
+    });
+
+    forgotPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        if (newPassword !== confirmNewPassword) {
+            errorBox.textContent = 'Passwords do not match.';
+            return;
+        }
+
+        try {
+            authService.resetPassword(currentUsername, newPassword);
+            alert('Password reset successfully! Please login with your new password.');
+            globalThis.location.href = './log-in.html';
+        } catch (error) {
+            errorBox.textContent = error.message;
+        }
+    });
+}
+
 
 const profileCircle = document.getElementById('profile-circle');
 if (profileCircle) {
@@ -118,7 +187,7 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
 
             if (groups.length > 0) {
                 groupsList.innerHTML = groups.map(group => `
-                    <div class="group-item">
+                    <div class="group-item" style="cursor: pointer;" onclick="globalThis.location.href='../pages/chat.html?contact=${encodeURIComponent(group.name)}'">
                         <div class="group-avatar">${group.name.charAt(0).toUpperCase()}</div>
                         <div class="group-details">
                             <p class="group-name">${group.name}</p>
@@ -130,6 +199,7 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
                 groupsList.innerHTML = '<p class="placeholder-text">You are not part of any groups yet.</p>';
             }
         }
+// ... [Modal Toggle and other profile logic follows]
 
         // Modal Toggle Functions
         const updateProfileModal = document.getElementById('update-profile-modal');
@@ -307,6 +377,17 @@ if (chatListContainer && chatViewContainer) {
     if(currentUser) {
         chatService.setCurrentUser(currentUser);
         chatService.renderChats(chatListContainer, chatViewContainer);
+
+        // Handle URL parameters for pre-selected contact/group
+        const urlParams = new URLSearchParams(globalThis.location.search);
+        const contactParam = urlParams.get('contact');
+        if (contactParam) {
+            chatService.renderChatView(chatViewContainer, contactParam);
+            
+            // Toggle Mobile View if pre-selected
+            const mainElement = document.querySelector('main');
+            if (mainElement) mainElement.classList.add('mobile-view-active');
+        }
     }
 }
 

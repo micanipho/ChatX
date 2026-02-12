@@ -26,10 +26,21 @@
             <input type="text" placeholder="Last Name" name="lName" id="lName" required>
             <label for="username">Username</label>
             <input type="text" placeholder="Username" name="username" id="username" required>
-            <label for="password">Password</label>
-            <input type="password" placeholder="Password" name="password" id="password" required>
+            <label for="password">Password (min. 6 characters)</label>
+            <input type="password" placeholder="Password" name="password" id="password" minlength="6" required>
             <label for="confirmPassword">Confirm Password</label>
-            <input type="password" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" required>
+            <input type="password" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" minlength="6" required>
+            
+            <label for="securityQuestion">Security Question</label>
+            <select name="securityQuestion" id="securityQuestion" required>
+                <option value="" disabled selected>Select a security question</option>
+                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                <option value="What was the name of your first school?">What was the name of your first school?</option>
+                <option value="In what city were you born?">In what city were you born?</option>
+            </select>
+            
+            <label for="securityAnswer">Security Answer</label>
+            <input type="text" placeholder="Your Answer" name="securityAnswer" id="securityAnswer" required>
             <button type="submit" class="btn">Sign Up</button>
             <p class="form-query">Already have an account? <a href="./log-in.html">Log In</a></p>
             <p class="errorBox"></p>
