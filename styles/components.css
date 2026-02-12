@@ -97,18 +97,36 @@
     margin-bottom: -1rem;
 }
 
-.forms input {
+.forms input,
+.forms select {
     padding: 0.75rem;
     width: 100%;
     font-size: 1rem;
     border: 1px solid #ccc;
     border-radius: 0.5rem;
     transition: border-color 0.3s ease;
+    background-color: white;
+    font-family: inherit;
 }
 
-.forms input:focus {
+.forms input:focus,
+.forms select:focus {
     outline: none;
     border-color: var(--secondary-color);
+}
+
+.forms select {
+    cursor: pointer;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.25rem;
+    padding-right: 2.5rem;
+}
+
+.forms select option {
+    padding: 0.5rem;
 }
 
 .forms .btn {

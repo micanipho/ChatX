@@ -17,10 +17,9 @@
     background: linear-gradient(199deg, var(--secondary-color) 15%, #bfddd2 50%, var(--primary-color) 80%);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
     padding: 3rem;
-    padding-bottom: 12rem;
     color: var(--background-color);
     font-family: 'Poppins', sans-serif;
     backdrop-filter: blur(15px);
@@ -192,11 +191,16 @@
     }
     
     /* Larger input fields for better mobile usability */
-    .forms input {
+    .forms input,
+    .forms select {
         padding: 0.75rem 0.875rem;
         font-size: 1rem;
         min-height: 44px;
         box-sizing: border-box;
+    }
+    
+    .forms select {
+        padding-right: 2.5rem;
     }
     
     /* Better label spacing on mobile */

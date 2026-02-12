@@ -6,19 +6,20 @@
     <title>Profile</title>
     <link rel="stylesheet" href="../styles/style.css">
     <link rel="stylesheet" href="../styles/profile.css">
+    <link rel="stylesheet" href="../styles/notification.css">
     <link href="https://cdn.jsdelivr.net/npm/remixicon@4.9.0/fonts/remixicon.css" rel="stylesheet" />
 </head>
 <body>
-    <section class="side-bar">
+    <aside class="side-bar">
         <img src="../assets/icons/logo.png" alt="logo" class="side_bar_logo">
-    </section>
+    </aside>
     <main class="profile-container">
         <i class="ri-arrow-left-line" id="back-profile-btn"></i>
         
         <!-- Single Unified Card -->
-        <div class="profile-card">
+        <article class="profile-card">
             <!-- Profile Header -->
-            <div class="profile-header">
+            <header class="profile-header">
                 <div class="profile-avatar-wrapper">
                     <img id="profile-img-avatar" src="" alt="Profile" class="hidden">
                     <div id="profile-initials-avatar" class="profile-initials-avatar hidden"></div>
@@ -27,7 +28,7 @@
                     <h2 id="profile-name">Loading...</h2>
                     <p id="profile-username">@username</p>
                 </div>
-            </div>
+            </header>
 
             <!-- Action Buttons -->
             <div class="profile-actions">
@@ -42,22 +43,22 @@
             <!-- Groups and Online Users Grid -->
             <div class="profile-content-grid">
                 <!-- Groups Section -->
-                <div class="content-section">
+                <section class="content-section">
                     <h3><i class="ri-group-line"></i> Your Groups</h3>
                     <div id="groups-list" class="groups-list">
                         <!-- Groups will be populated here -->
                     </div>
-                </div>
+                </section>
 
                 <!-- Online Users Section -->
-                <div class="content-section">
+                <section class="content-section">
                     <h3><i class="ri-user-line"></i> Online Users</h3>
                     <div id="online-users-list" class="online-users-list">
                         <!-- Online users will be populated here -->
                     </div>
-                </div>
+                </section>
             </div>
-        </div>
+        </article>
     </main>
 
     <!-- Update Profile Modal -->
