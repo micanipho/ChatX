@@ -6,6 +6,8 @@ export class User {
         this.lastName = lastName;
         this.securityQuestion = securityQuestion;
         this.securityAnswer = securityAnswer;
+        this.isOnline = false;
+        this.lastSeen = new Date().toISOString();
         this.chats = [];
     }
 
@@ -16,7 +18,9 @@ export class User {
             firstName: this.firstName,
             lastName: this.lastName,
             securityQuestion: this.securityQuestion,
-            securityAnswer: this.securityAnswer
+            securityAnswer: this.securityAnswer,
+            isOnline: this.isOnline,
+            lastSeen: this.lastSeen
         };
     }
 }

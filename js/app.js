@@ -144,6 +144,14 @@ if (profileCircle) {
     }
 }
 
+// Handle Online Status on Page Close
+globalThis.addEventListener('beforeunload', () => {
+    const user = authService.getCurrentUser();
+    if (user) {
+        authService.updateStatus(user.username, false);
+    }
+});
+
 // Profile Page Logic (independent of chat page)
 const profileName = document.getElementById('profile-name');
 const profileUsername = document.getElementById('profile-username');
@@ -153,6 +161,9 @@ const profileInitialsAvatar = document.getElementById('profile-initials-avatar')
 if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar) {
     const user = authService.getCurrentUser();
     if (user) {
+        // Ensure user is marked as online when they visit their profile
+        authService.updateStatus(user.username, true);
+        
         const { firstName, lastName, fName, lName, username, profilePicture } = user;
         let initials = '';
         
@@ -375,6 +386,9 @@ const chatViewContainer = document.querySelector('.chat-view');
 if (chatListContainer && chatViewContainer) {
     const currentUser = authService.getCurrentUser();
     if(currentUser) {
+        // Ensure user is marked as online when they land on the chat page
+        authService.updateStatus(currentUser.username, true);
+        
         chatService.setCurrentUser(currentUser);
         chatService.renderChats(chatListContainer, chatViewContainer);
 

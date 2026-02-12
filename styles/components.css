@@ -16,6 +16,32 @@
     box-shadow: 0 4px 12px var(--primary-color--dark);
 }
 
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    border: 2px solid var(--background-color);
+    background-color: #888; /* Offline/Default */
+}
+
+.status-indicator.online {
+    background-color: #4CAF50; /* Green */
+}
+
+.avatar-container {
+    position: relative;
+    display: flex;
+}
+
+.avatar-container .status-indicator {
+    position: absolute;
+    bottom: 4px;
+    right: 4px;
+    z-index: 2;
+}
+
 .menu_btn {
     display: none;
     font-size: 1.5rem;

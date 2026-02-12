@@ -44,17 +44,28 @@ export class AuthService {
 
     login(username, password) {
         const users = Storage.get(this.usersKey) || {};
-        const user = users[username.trim()];
+        const rawUsername = username.trim();
+        const user = users[rawUsername];
 
         if (!user || user.password !== password) {
             throw new Error('Invalid username or password. Please try again.');
         }
+
+        // Update status on login
+        user.isOnline = true;
+        user.lastSeen = new Date().toISOString();
+        users[rawUsername] = user;
+        Storage.set(this.usersKey, users);
 
         Storage.setSession(this.currentUserKey, user);
         return user;
     }
 
     logout() {
+        const currentUser = this.getCurrentUser();
+        if (currentUser) {
+            this.updateStatus(currentUser.username, false);
+        }
         Storage.removeSession(this.currentUserKey);
     }
 
@@ -94,5 +105,22 @@ export class AuthService {
         users[username] = user;
         Storage.set(this.usersKey, users);
         return true;
+    }
+
+    updateStatus(username, isOnline) {
+        const users = Storage.get(this.usersKey) || {};
+        const user = users[username];
+        if (user) {
+            user.isOnline = isOnline;
+            user.lastSeen = new Date().toISOString();
+            users[username] = user;
+            Storage.set(this.usersKey, users);
+            
+            // Also update session if it's the current user
+            const sessionUser = this.getCurrentUser();
+            if (sessionUser && sessionUser.username === username) {
+                Storage.setSession(this.currentUserKey, user);
+            }
+        }
     }
 }

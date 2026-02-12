@@ -156,6 +156,34 @@ export class ChatService {
         return user.name || user.username || 'Unknown';
     }
 
+    getUserStatus(username) {
+        const user = this.userService.getUser(username);
+        if (!user) return null;
+        return {
+            isOnline: user.isOnline,
+            lastSeen: user.lastSeen
+        };
+    }
+
+    formatLastSeen(isOnline, lastSeen) {
+        if (isOnline) return 'Online';
+        if (!lastSeen) return 'Offline';
+
+        const now = new Date();
+        const seen = new Date(lastSeen);
+        const diffInSeconds = Math.floor((now - seen) / 1000);
+
+        if (diffInSeconds < 60) return 'Just now';
+        
+        const diffInMinutes = Math.floor(diffInSeconds / 60);
+        if (diffInMinutes < 60) return `${diffInMinutes}m ago`;
+        
+        const diffInHours = Math.floor(diffInMinutes / 60);
+        if (diffInHours < 24) return `${diffInHours}h ago`;
+        
+        return seen.toLocaleDateString();
+    }
+
     formatTimestamp(timestamp) {
         if (!timestamp) return '';
         
@@ -227,9 +255,17 @@ export class ChatService {
             const displayName = this.getUserDisplayName(conv);
             const displayMessage = conv.lastMessage?.text || '<i>No messages yet</i>';
             const displayTime = this.formatTimestamp(conv.time) || '';
+            
+            let status = null;
+            if (conv.type === 'user') {
+                status = this.getUserStatus(conv.name);
+            }
 
             chatItem.innerHTML = `
-                <img src="${conv.avatar}" alt="${displayName}" class="chat-avatar">
+                <div class="avatar-container">
+                    <img src="${conv.avatar}" alt="${displayName}" class="chat-avatar">
+                    ${status ? `<span class="status-indicator ${status.isOnline ? 'online' : ''}"></span>` : ''}
+                </div>
                 <div class="chat-info">
                     <div class="chat-header">
                         <span class="chat-name">${displayName}</span>
@@ -252,14 +288,23 @@ export class ChatService {
         const contactUser = this.userService.getUser(contactName);
         const displayName = this.getUserDisplayName(contactUser || { username: contactName });
         const avatar = contactUser?.profilePicture || `https://i.pravatar.cc/150?u=${contactName.replaceAll(/\s/g, '')}`;
+        
+        const status = this.getUserStatus(contactName);
+        let statusText = `@${contactName}`;
+        if (status) {
+            statusText = this.formatLastSeen(status.isOnline, status.lastSeen);
+        }
 
         container.innerHTML = `
             <div class="chat-view-header">
                 <i class="ri-arrow-left-line back-btn" id="back-to-chats"></i>
-                <img src="${avatar}" alt="${displayName}" class="chat-view-avatar">
+                <div class="avatar-container">
+                    <img src="${avatar}" alt="${displayName}" class="chat-view-avatar">
+                    ${status ? `<span class="status-indicator ${status.isOnline ? 'online' : ''}"></span>` : ''}
+                </div>
                 <div class="chat-view-info">
                     <h3>${displayName}</h3>
-                    <span>@${contactName}</span>
+                    <span>${statusText}</span>
                 </div>
                 <div class="chat-view-actions">
                     <i class="ri-more-2-fill"></i>
