@@ -1,9 +1,27 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&family=Space+Mono&family=Poppins:wght@300;400;500;600;700;800&display=swap');
 
+* {
+    box-sizing: border-box;
+}
+
+html {
+    /* Smooth scrolling for better UX */
+    scroll-behavior: smooth;
+    /* Prevent text size adjustment on orientation change (iOS) */
+    -webkit-text-size-adjust: 100%;
+}
+
 body {
     font-family: 'Montserrat', sans-serif;
     min-height: 100vh;
     background-color: var(--background-color);
     margin: 0;
     padding: 0;
+    /* Enable smooth scrolling on iOS */
+    -webkit-overflow-scrolling: touch;
+}
+
+/* Improve tap response time on mobile (remove 300ms delay) */
+a, button, input, select, textarea {
+    touch-action: manipulation;
 }

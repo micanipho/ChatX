@@ -1,4 +1,5 @@
 import { Chat } from '../models/Chat.js';
+import { Group } from '../models/Group.js';
 import { UserService } from './UserService.js';
 import { Storage } from '../utils/Storage.js';
 
@@ -7,6 +8,8 @@ export class ChatService {
         this.userService = new UserService();
         this.messagesKey = 'chat_messages';
         this.messages = this.loadMessages();
+        this.groupsKey = 'chat_groups';
+        this.groups = this.loadGroups();
         this.currentUser = null;
         this.chatListContainer = null;
         this.chatViewContainer = null;
@@ -19,6 +22,9 @@ export class ChatService {
         globalThis.addEventListener('storage', (e) => {
             if (e.key === this.messagesKey) {
                 this.messages = this.loadMessages(); 
+                this.updateUI();
+            } else if (e.key === this.groupsKey) {
+                this.groups = this.loadGroups();
                 this.updateUI();
             } else if (e.key === 'userData') {
                 this.userService.refreshUsers(); 
@@ -49,6 +55,14 @@ export class ChatService {
         Storage.set(this.messagesKey, this.messages);
     }
 
+    loadGroups() {
+        return Storage.get(this.groupsKey) || [];
+    }
+
+    saveGroups() {
+        Storage.set(this.groupsKey, this.groups);
+    }
+
     getConversations() {
         if (!this.currentUser) return [];
 
@@ -60,38 +74,69 @@ export class ChatService {
                 conversations[user.username] = {
                     ...user,
                     name: user.username,
-                    avatar: user.profilePicture || `https://i.pravatar.cc/150?u=${user.username.replace(/\s/g, '')}`,
+                    avatar: user.profilePicture || `https://i.pravatar.cc/150?u=${user.username.replaceAll(/\s/g, '')}`,
                     lastMessage: null,
                     time: '',
-                    unread: 0
+                    unread: 0,
+                    type: 'user'
                 };
             }
         });
 
+        // Add Groups to conversations
+        this.groups.forEach(group => {
+            conversations[group.name] = {
+                ...group,
+                avatar: group.avatar || `https://i.pravatar.cc/150?u=${group.name.replaceAll(/\s/g, '')}`,
+                lastMessage: null,
+                time: group.createdAt,
+                unread: 0,
+                type: 'group'
+            };
+        });
+
         this.messages.forEach(msg => {
+            // Check for DM
             const isSender = msg.sender === this.currentUser;
             const isReceiver = msg.receiver === this.currentUser;
 
             if (isSender || isReceiver) {
                 const contactName = isSender ? msg.receiver : msg.sender;
                 
-                if (conversations[contactName]) {
+                // Only update if it's a known user conversation (DMs)
+                // Note: Group messages are handled below? No, group messages have receiver === groupName
+                if (conversations[contactName]?.type === 'user') {
                     conversations[contactName].lastMessage = msg;
                     conversations[contactName].time = msg.timestamp;
                 }
             }
+            
+            // Check for Group Message
+            // If receiver is a known group, update its last message
+            if (conversations[msg.receiver]?.type === 'group') {
+                 conversations[msg.receiver].lastMessage = msg;
+                 conversations[msg.receiver].time = msg.timestamp;
+            }
         });
 
         return Object.values(conversations).sort((a, b) => {
-             if (a.lastMessage && b.lastMessage) return b.lastMessage.id - a.lastMessage.id;
-             if (a.lastMessage) return -1;
-             if (b.lastMessage) return 1;
-             return 0;
+             // Prioritize by last message ID if available, else usage default sort
+             const timeA = a.lastMessage ? a.lastMessage.id : (new Date(a.time).getTime() || 0);
+             const timeB = b.lastMessage ? b.lastMessage.id : (new Date(b.time).getTime() || 0);
+             return timeB - timeA;
         });
     }
 
     getMessages(contactName) {
         if (!this.currentUser) return [];
+        
+        // check if contactName is a group
+        const isGroup = this.groups.some(g => g.name === contactName);
+
+        if (isGroup) {
+            return this.messages.filter(msg => msg.receiver === contactName);
+        }
+
         return this.messages.filter(msg => 
             (msg.sender === contactName && msg.receiver === this.currentUser) || 
             (msg.sender === this.currentUser && msg.receiver === contactName)
@@ -100,23 +145,64 @@ export class ChatService {
 
     getUserDisplayName(user) {
         if (!user) return 'Unknown User';
-        if (user.firstName && user.lastName) return `${user.firstName} ${user.lastName}`;
-        if (user.fName && user.lName) return `${user.fName} ${user.lName}`; 
-        return user.firstName || user.name || user.username;
+        
+        const firstName = user.firstName || user.fName || '';
+        const lastName = user.lastName || user.lName || '';
+        
+        const fullName = `${firstName} ${lastName}`.trim();
+        
+        if (fullName) return fullName;
+        
+        return user.name || user.username || 'Unknown';
     }
 
-    renderChats(container, viewContainer) {
+    formatTimestamp(timestamp) {
+        if (!timestamp) return '';
+        
+        try {
+            const date = new Date(timestamp);
+            // Check if date is valid
+            if (Number.isNaN(date.getTime())) {
+                return ''; // Return empty string for invalid dates
+            }
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
+        } catch (e) {
+            console.error('Failed to format timestamp:', timestamp, e);
+            return ''; // Return empty string if parsing fails
+        }
+    }
+
+    renderChats(container, viewContainer, filterType = 'all', searchQuery = '') {
         if (!container) return;
         
         this.chatListContainer = container;
         this.chatViewContainer = viewContainer;
+        this.currentFilter = filterType;
+        this.currentSearchQuery = searchQuery;
 
         if (!this.currentUser) {
             container.innerHTML = '<div style="padding:1rem; text-align:center;">Please log in to see chats.</div>';
             return;
         }
 
-        const conversations = this.getConversations();
+        let conversations = this.getConversations();
+        
+        // Filter conversations based on type
+        if (filterType === 'group') {
+            conversations = conversations.filter(chat => chat.type === 'group');
+        } else if (filterType === 'user') { 
+             conversations = conversations.filter(chat => chat.type === 'user');
+        }
+
+        // Filter by search query
+        if (searchQuery.trim()) {
+            const query = searchQuery.toLowerCase();
+            conversations = conversations.filter(conv => {
+                const displayName = this.getUserDisplayName(conv).toLowerCase();
+                return displayName.includes(query);
+            });
+        }
+
         container.innerHTML = ''; 
         
         if (conversations.length === 0) {
@@ -140,7 +226,7 @@ export class ChatService {
 
             const displayName = this.getUserDisplayName(conv);
             const displayMessage = conv.lastMessage?.text || '<i>No messages yet</i>';
-            const displayTime = conv.time || '';
+            const displayTime = this.formatTimestamp(conv.time) || '';
 
             chatItem.innerHTML = `
                 <img src="${conv.avatar}" alt="${displayName}" class="chat-avatar">
@@ -165,7 +251,7 @@ export class ChatService {
         const messages = this.getMessages(contactName);
         const contactUser = this.userService.getUser(contactName);
         const displayName = this.getUserDisplayName(contactUser || { username: contactName });
-        const avatar = contactUser?.profilePicture || `https://i.pravatar.cc/150?u=${contactName.replace(/\s/g, '')}`;
+        const avatar = contactUser?.profilePicture || `https://i.pravatar.cc/150?u=${contactName.replaceAll(/\s/g, '')}`;
 
         container.innerHTML = `
             <div class="chat-view-header">
@@ -183,7 +269,7 @@ export class ChatService {
                 ${messages.length > 0 ? messages.map(msg => `
                     <div class="message ${msg.sender === this.currentUser ? 'sent' : 'received'}">
                         <p>${msg.text}</p>
-                        <span class="time">${msg.timestamp}</span>
+                        <span class="time">${this.formatTimestamp(msg.timestamp)}</span>
                     </div>
                 `).join('') : '<div style="text-align:center; padding:2rem; color:#ccc;">Start the conversation!</div>'}
             </div>
@@ -217,7 +303,7 @@ export class ChatService {
             const newMessage = new Chat(
                 Date.now(), 
                 text, 
-                new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }), 
+                new Date().toISOString(), 
                 this.currentUser, 
                 contactName
             );
@@ -238,5 +324,22 @@ export class ChatService {
         input.addEventListener('keypress', (e) => {
             if (e.key === 'Enter') sendMessage();
         });
+    }
+
+
+    createGroup(name, members) {
+        if (!name || !members || members.length === 0) return;
+        
+        const newGroup = new Group(
+            Date.now(),
+            name,
+            members,
+            this.currentUser,
+            new Date().toISOString()
+        );
+
+        this.groups.push(newGroup);
+        this.saveGroups();
+        return newGroup;
     }
 }

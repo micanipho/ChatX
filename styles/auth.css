@@ -91,22 +91,65 @@
 }
 
 @media (max-width: 768px) {
-    .CTA {
+    /* Sign Up Page: CTA is a banner */
+    div.CTA {
         min-height: 30vh;
         padding: 2rem;
         flex-shrink: 0;
+        /* Inherits gradient from base class */
     }
 
-    .cta-title {
+    /* Login Page: CTA is full screen wrapper */
+    main.CTA {
+        min-height: 100vh;
+        padding: 0;
+        align-items: center;
+        justify-content: center;
+        background: var(--background-color); 
+    }
+
+    /* Login Page Form Section */
+    .log-in-section {
+        width: 100%;
+        height: 100vh;
+        border-radius: 0;
+        margin: 0;
+        padding: 2rem;
+        box-sizing: border-box;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        box-shadow: none; 
+    }
+    
+    /* Hide decorative text only on Login Page */
+    main.CTA .cta-text-container, 
+    main.CTA .subtitle, 
+    main.CTA .cta-title {
+        display: none; 
+    }
+
+    /* Logo adjustment for Login Page */
+    main.CTA .cta_nav_logo {
+        margin-bottom: 2rem;
+        width: 60px; 
+    }
+    
+    /* Sign Up Page Styles */
+    div.CTA .cta-title {
         font-size: 2rem;
+        display: block; /* Ensure visible on sign up */
     }
-
-    .cta_nav_logo {
-        justify-content: flex-start;
-    }
-
-    .subtitle {
+    
+    div.CTA .subtitle {
         font-size: 1rem;
+        display: block; /* Ensure visible on sign up */
+    }
+
+    div.CTA .cta_nav_logo {
+        justify-content: flex-start;
+        width: auto; /* Reset width for sign up banner */
+        margin-bottom: 0;
     }
 
     .form-container {
