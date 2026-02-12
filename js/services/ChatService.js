@@ -406,4 +406,55 @@ export class ChatService {
         this.saveGroups();
         return newGroup;
     }
+
+    handleUsernameChange(oldUsername, newUsername) {
+        // 1. Update Groups
+        let groupsChanged = false;
+        this.groups = this.groups.map(group => {
+            let updated = false;
+            
+            // Update members list
+            if (group.members.includes(oldUsername)) {
+                group.members = group.members.map(m => m === oldUsername ? newUsername : m);
+                updated = true;
+            }
+            
+            // Update admin if applicable
+            if (group.admin === oldUsername) {
+                group.admin = newUsername;
+                updated = true;
+            }
+            
+            if (updated) groupsChanged = true;
+            return group;
+        });
+        
+        if (groupsChanged) this.saveGroups();
+
+        // 2. Update Messages
+        let messagesChanged = false;
+        this.messages = this.messages.map(msg => {
+            let updated = false;
+            
+            if (msg.sender === oldUsername) {
+                msg.sender = newUsername;
+                updated = true;
+            }
+            
+            if (msg.receiver === oldUsername) {
+                msg.receiver = newUsername;
+                updated = true;
+            }
+            
+            if (updated) messagesChanged = true;
+            return msg;
+        });
+        
+        if (messagesChanged) this.saveMessages();
+        
+        // 3. Update Current User if applicable
+        if (this.currentUser === oldUsername) {
+            this.currentUser = newUsername;
+        }
+    }
 }

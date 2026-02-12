@@ -77,6 +77,11 @@ export class AuthService {
         const users = Storage.get(this.usersKey) || {};
         const user = users[username.trim()];
         if (!user) throw new Error('User not found.');
+        
+        if (!user.securityQuestion) {
+            throw new Error('This user does not have a security question set. Please contact support.');
+        }
+        
         return user.securityQuestion;
     }
 

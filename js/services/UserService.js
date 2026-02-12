@@ -19,11 +19,23 @@ export class UserService {
         return this.users[username];
     }
 
-    updateUser(username, userUpdatedData) {
-        if (this.users[username]) {
-            this.users[username] = { ...this.users[username], ...userUpdatedData };
-            Storage.set('userData', this.users);
+    updateUser(oldUsername, updatedData) {
+        const user = this.users[oldUsername];
+        if (!user) return;
+
+        const newUsername = updatedData.username || oldUsername;
+        const updatedUser = { ...user, ...updatedData };
+
+        if (newUsername === oldUsername) {
+            this.users = { ...this.users, [oldUsername]: updatedUser };
+        } else {
+            const updatedUsers = { ...this.users, [newUsername]: updatedUser };
+            delete updatedUsers[oldUsername];
+            this.users = updatedUsers;
         }
+
+        Storage.set('userData', this.users);
+        return updatedUser;
     }
 
     deleteUser(username) {

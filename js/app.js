@@ -86,6 +86,10 @@ if (forgotPasswordForm) {
             errorBox.textContent = '';
         } catch (error) {
             errorBox.textContent = error.message;
+            // Ensure step 2 is hidden if there's an error (e.g. user not found or no question)
+            step2.classList.add('hidden');
+            step1.classList.remove('hidden');
+            displayQuestion.textContent = '';
         }
     });
 
@@ -161,7 +165,7 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
         // Ensure user is marked as online when they visit their profile
         authService.updateStatus(user.username, true);
         
-        const { firstName, lastName, fName, lName, username, profilePicture } = user;
+        const { firstName, lastName, fName, lName, username } = user;
         let initials = '';
         
         if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
@@ -184,9 +188,9 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
         const groupsList = document.getElementById('groups-list');
         if (groupsList) {
             // Ensure chatService groups are loaded
-            const groups = (chatService && chatService.groups) ? chatService.groups.filter(group => 
-                group.members && group.members.includes(username)
-            ) : [];
+            const groups = chatService?.groups?.filter(group => 
+                group.members?.includes(username)
+            ) || [];
 
             if (groups.length > 0) {
                 groupsList.innerHTML = groups.map(group => `
@@ -287,27 +291,20 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
                 return;
             }
 
-            // Update user data with only username change
-            const updatedUser = {
-                ...user,
-                username: updatedUsername
-            };
+            // Update user data using UserService with spreading
+            const updatedUser = chatService.userService.updateUser(username, { username: updatedUsername });
 
-            // Save to session and local storage
-            const users = Storage.get('userData') || {};
-            
-            // If username changed, remove old entry and add new one
-            if (updatedUsername !== username) {
-                delete users[username];
+            if (updatedUser) {
+                // Cascade changes to groups and messages
+                if (updatedUsername !== username) {
+                    chatService.handleUsernameChange(username, updatedUsername);
+                }
+                
+                Storage.setSession('loggedInUser', updatedUser);
+                hideModal(updateProfileModal);
+                alert('Profile updated successfully!');
+                globalThis.location.reload();
             }
-            
-            users[updatedUsername] = updatedUser;
-            Storage.set('userData', users);
-            Storage.setSession('loggedInUser', updatedUser);
-
-            hideModal(updateProfileModal);
-            alert('Profile updated successfully!');
-            globalThis.location.reload();
         });
 
         // Change Password Modal
@@ -350,24 +347,20 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
                 return;
             }
 
-            // Update password
-            const updatedUser = {
-                ...user,
-                password: newPassword
-            };
+            // Update password using UserService with spreading
+            const updatedUser = chatService.userService.updateUser(username, { password: newPassword });
 
-            const users = Storage.get('userData') || {};
-            users[username] = updatedUser;
-            Storage.set('userData', users);
-            Storage.setSession('loggedInUser', updatedUser);
+            if (updatedUser) {
+                Storage.setSession('loggedInUser', updatedUser);
+                
+                // Clear form
+                if (currentPasswordInput) currentPasswordInput.value = '';
+                if (newPasswordInput) newPasswordInput.value = '';
+                if (confirmPasswordInput) confirmPasswordInput.value = '';
 
-            // Clear form
-            if (currentPasswordInput) currentPasswordInput.value = '';
-            if (newPasswordInput) newPasswordInput.value = '';
-            if (confirmPasswordInput) confirmPasswordInput.value = '';
-
-            hideModal(changePasswordModal);
-            alert('Password changed successfully!');
+                hideModal(changePasswordModal);
+                alert('Password changed successfully!');
+            }
         });
 
         // Back Button Logic
