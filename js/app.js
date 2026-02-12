@@ -129,7 +129,7 @@ const toggleModal = (show) => {
             populateUserSelection();
         } else {
             createGroupModal.classList.add('hidden');
-            // Reset form
+            
             if (groupNameInput) groupNameInput.value = '';
             if (userSelectionList) userSelectionList.innerHTML = '';
         }
@@ -211,8 +211,8 @@ const populateUserSelection = () => {
     const users = chatService.userService.getUsers();
     
     users.forEach(user => {
-        if (user.username === currentUser?.username) return; // Skip current user
-        console.log('Processing user for group add:', user); // Debug: Check user properties
+        if (user.username === currentUser?.username) return; 
+        console.log('Processing user for group add:', user); 
 
         const item = document.createElement('div');
         item.className = 'group-member-item';

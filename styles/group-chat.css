@@ -165,6 +165,7 @@
 /* Mobile Responsive Styles for Modal */
 @media (max-width: 768px) {
   .modal {
+    
     /* Safe area for notched devices */
     padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
   }
