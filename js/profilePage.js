@@ -5,6 +5,101 @@ import { Notification } from './utils/Notification.js';
 import { ChatHelpers } from './utils/ChatHelpers.js';
 
 /**
+ * Calculate user initials from user data
+ * @param {Object} user - User object containing name information
+ * @returns {string} User initials
+ */
+function calculateInitials(user) {
+    const { firstName, lastName, fName, lName, username } = user;
+    
+    if (firstName && lastName) return (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+    if (fName && lName) return (fName.charAt(0) + lName.charAt(0)).toUpperCase();
+    if (firstName) return firstName.charAt(0).toUpperCase();
+    if (username) return username.slice(0, 2).toUpperCase();
+    return '';
+}
+
+/**
+ * Update profile display elements
+ * @param {Object} user - User object
+ * @param {string} initials - User initials
+ */
+function updateProfileDisplay(user, initials) {
+    const { firstName, lastName, fName, lName, username } = user;
+    const profileName = document.getElementById('profile-name');
+    const profileUsername = document.getElementById('profile-username');
+    const profileImgAvatar = document.getElementById('profile-img-avatar');
+    const profileInitialsAvatar = document.getElementById('profile-initials-avatar');
+
+    if (profileName) profileName.textContent = `${firstName || fName || ''} ${lastName || lName || ''}`.trim() || username;
+    if (profileUsername) profileUsername.textContent = `@${username}`;
+
+    // Force Initials on Profile Header
+    if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
+    if (profileInitialsAvatar) {
+        profileInitialsAvatar.textContent = initials;
+        profileInitialsAvatar.classList.remove('hidden');
+        profileInitialsAvatar.className = 'profile-initials-avatar';
+    }
+}
+
+/**
+ * Render groups list
+ * @param {ChatService} chatService - Chat service instance
+ * @param {string} username - Current username
+ */
+function renderGroups(chatService, username) {
+    const groupsList = document.getElementById('groups-list');
+    if (!groupsList) return;
+
+    const groups = chatService?.groups?.filter(group => 
+        group.members?.includes(username)
+    ) || [];
+
+    if (groups.length > 0) {
+        groupsList.innerHTML = groups.map(group => `
+            <div class="group-item" style="cursor: pointer;" onclick="globalThis.location.href='../pages/chat.html?contact=${encodeURIComponent(group.name)}'">
+                <div class="group-avatar">${group.name.charAt(0).toUpperCase()}</div>
+                <div class="group-details">
+                    <p class="group-name">${group.name}</p>
+                    <p class="group-members">${group.members.length} members</p>
+                </div>
+            </div>
+        `).join('');
+    } else {
+        groupsList.innerHTML = '<p class="placeholder-text">You are not part of any groups yet.</p>';
+    }
+}
+
+/**
+ * Validate password change inputs
+ * @param {string} currentPassword - Current password input
+ * @param {string} newPassword - New password input
+ * @param {string} confirmPassword - Confirm password input
+ * @param {Object} user - Current user object
+ * @returns {Object|null} Error object with message, or null if valid
+ */
+function validatePasswordChange(currentPassword, newPassword, confirmPassword, user) {
+    if (!currentPassword || !newPassword || !confirmPassword) {
+        return { message: 'All fields are required' };
+    }
+
+    if (currentPassword !== user.password) {
+        return { message: 'Current password is incorrect' };
+    }
+
+    if (newPassword !== confirmPassword) {
+        return { message: 'New passwords do not match' };
+    }
+
+    if (newPassword.length < 6) {
+        return { message: 'New password must be at least 6 characters' };
+    }
+
+    return null;
+}
+
+/**
  * Initializes the profile page functionality
  * @param {AuthService} authService - The authentication service instance
  * @param {ChatService} chatService - The chat service instance
@@ -25,46 +120,11 @@ export function initProfilePage(authService, chatService) {
     // Ensure user is marked as online when they visit their profile
     authService.updateStatus(user.username, true);
     
-    const { firstName, lastName, fName, lName, username } = user;
-    let initials = '';
+    const { username } = user;
+    const initials = calculateInitials(user);
     
-    if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-    else if (fName && lName) initials = (fName.charAt(0) + lName.charAt(0)).toUpperCase();
-    else if (firstName) initials = firstName.charAt(0).toUpperCase();
-    else if (username) initials = username.slice(0, 2).toUpperCase();
-
-    if (profileName) profileName.textContent = `${firstName || fName || ''} ${lastName || lName || ''}`.trim() || username;
-    if (profileUsername) profileUsername.textContent = `@${username}`;
-
-    // Force Initials on Profile Header
-    if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
-    if (profileInitialsAvatar) {
-        profileInitialsAvatar.textContent = initials;
-        profileInitialsAvatar.classList.remove('hidden');
-        profileInitialsAvatar.className = 'profile-initials-avatar';
-    }
-
-    // Load and display groups
-    const groupsList = document.getElementById('groups-list');
-    if (groupsList) {
-        const groups = chatService?.groups?.filter(group => 
-            group.members?.includes(username)
-        ) || [];
-
-        if (groups.length > 0) {
-            groupsList.innerHTML = groups.map(group => `
-                <div class="group-item" style="cursor: pointer;" onclick="globalThis.location.href='../pages/chat.html?contact=${encodeURIComponent(group.name)}'">
-                    <div class="group-avatar">${group.name.charAt(0).toUpperCase()}</div>
-                    <div class="group-details">
-                        <p class="group-name">${group.name}</p>
-                        <p class="group-members">${group.members.length} members</p>
-                    </div>
-                </div>
-            `).join('');
-        } else {
-            groupsList.innerHTML = '<p class="placeholder-text">You are not part of any groups yet.</p>';
-        }
-    }
+    updateProfileDisplay(user, initials);
+    renderGroups(chatService, username);
 
     // Online Users Logic
     const onlineUsersList = document.getElementById('online-users-list');
@@ -180,23 +240,9 @@ export function initProfilePage(authService, chatService) {
         const newPassword = newPasswordInput?.value.trim() || '';
         const confirmPassword = confirmPasswordInput?.value.trim() || '';
 
-        if (!currentPassword || !newPassword || !confirmPassword) {
-            Notification.error('All fields are required');
-            return;
-        }
-
-        if (currentPassword !== user.password) {
-            Notification.error('Current password is incorrect');
-            return;
-        }
-
-        if (newPassword !== confirmPassword) {
-            Notification.error('New passwords do not match');
-            return;
-        }
-
-        if (newPassword.length < 6) {
-            Notification.error('New password must be at least 6 characters');
+        const validationError = validatePasswordChange(currentPassword, newPassword, confirmPassword, user);
+        if (validationError) {
+            Notification.error(validationError.message);
             return;
         }
 
