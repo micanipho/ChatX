@@ -57,7 +57,96 @@ const handleAuth = (form, action, redirect) => {
     });
 };
 
-handleAuth(signupForm, (data) => authService.register(data), './log-in.html');
+// Signup with Security Question Modal
+let pendingSignupData = null;
+
+signupForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const data = Object.fromEntries(new FormData(signupForm).entries());
+    
+    // Clear any previous errors
+    if (errorBox) errorBox.textContent = '';
+    
+    // Basic validation
+    if (!data.fName || !data.lName || !data.username || !data.password || !data.confirmPassword) {
+        if (errorBox) errorBox.textContent = 'All fields are required';
+        return;
+    }
+    
+    if (data.password !== data.confirmPassword) {
+        if (errorBox) errorBox.textContent = 'Passwords do not match';
+        return;
+    }
+    
+    if (data.password.length < 6) {
+        if (errorBox) errorBox.textContent = 'Password must be at least 6 characters';
+        return;
+    }
+    
+    // Store the initial form data
+    pendingSignupData = data;
+    
+    // Show the security question modal
+    const securityModal = document.getElementById('security-modal');
+    if (securityModal) {
+        securityModal.classList.remove('hidden');
+    }
+});
+
+// Security Question Modal Logic
+const securityModal = document.getElementById('security-modal');
+const securityForm = document.getElementById('security-form');
+const closeSecurityModal = document.getElementById('close-security-modal');
+const securityModalOverlay = securityModal?.querySelector('.modal-overlay');
+const securityErrorBox = securityForm?.querySelector('.errorBox');
+
+// Close modal on X button click
+closeSecurityModal?.addEventListener('click', () => {
+    securityModal?.classList.add('hidden');
+    pendingSignupData = null;
+});
+
+// Close modal on overlay click
+securityModalOverlay?.addEventListener('click', () => {
+    securityModal?.classList.add('hidden');
+    pendingSignupData = null;
+});
+
+// Handle security form submission
+securityForm?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    
+    if (!pendingSignupData) {
+        if (securityErrorBox) securityErrorBox.textContent = 'Session expired. Please try again.';
+        return;
+    }
+    
+    const securityData = Object.fromEntries(new FormData(securityForm).entries());
+    
+    // Clear any previous errors
+    if (securityErrorBox) securityErrorBox.textContent = '';
+    
+    // Combine initial signup data with security question data
+    const completeData = {
+        ...pendingSignupData,
+        ...securityData
+    };
+    
+    try {
+        await authService.register(completeData);
+        
+        // Success - close modal and redirect
+        securityModal?.classList.add('hidden');
+        securityForm.reset();
+        signupForm.reset();
+        pendingSignupData = null;
+        
+        globalThis.location.href = './log-in.html';
+    } catch (error) {
+        if (securityErrorBox) securityErrorBox.textContent = error.message;
+    }
+});
+
 handleAuth(loginForm, (data) => authService.login(data.username, data.password), './chat.html');
 
 // Forgot Password Logic

@@ -7,6 +7,7 @@
     <title>Sign Up</title>
     <link rel="stylesheet" href="../styles/style.css">
     <link rel="stylesheet" href="../styles/auth.css">
+    <link rel="stylesheet" href="../styles/modal.css">
 </head>
 <body>
     <main>
@@ -30,21 +31,36 @@
             <input type="password" placeholder="Password" name="password" id="password" minlength="6" required>
             <label for="confirmPassword">Confirm Password</label>
             <input type="password" placeholder="Confirm Password" name="confirmPassword" id="confirmPassword" minlength="6" required>
-            
-            <label for="securityQuestion">Security Question</label>
-            <select name="securityQuestion" id="securityQuestion" required>
-                <option value="" disabled selected>Select a security question</option>
-                <option value="What was the name of your first pet?">What was the name of your first pet?</option>
-                <option value="What was the name of your first school?">What was the name of your first school?</option>
-                <option value="In what city were you born?">In what city were you born?</option>
-            </select>
-            
-            <label for="securityAnswer">Security Answer</label>
-            <input type="text" placeholder="Your Answer" name="securityAnswer" id="securityAnswer" required>
             <button type="submit" class="btn">Sign Up</button>
             <p class="form-query">Already have an account? <a href="./log-in.html">Log In</a></p>
             <p class="errorBox"></p>
         </form>
+    </section>
+
+    <!-- Security Question Modal -->
+    <div class="modal hidden" id="security-modal">
+        <div class="modal-overlay"></div>
+        <div class="modal-content">
+            <button class="modal-close" id="close-security-modal">&times;</button>
+            <h2 class="modal-title">Account Recovery Setup</h2>
+            <p class="modal-description">To help you recover your account if you forget your password, please set up a security question.</p>
+            
+            <form class="modal-form" id="security-form">
+                <label for="modal-securityQuestion">Security Question</label>
+                <select name="securityQuestion" id="modal-securityQuestion" required>
+                    <option value="" disabled selected>Select a security question</option>
+                    <option value="What was the name of your first pet?">What was the name of your first pet?</option>
+                    <option value="What was the name of your first school?">What was the name of your first school?</option>
+                    <option value="In what city were you born?">In what city were you born?</option>
+                </select>
+                
+                <label for="modal-securityAnswer">Security Answer</label>
+                <input type="text" placeholder="Your Answer" name="securityAnswer" id="modal-securityAnswer" required>
+                
+                <button type="submit" class="btn">Complete Signup</button>
+                <p class="errorBox"></p>
+            </form>
+        </div>
     </div>
     </main>
     <script type="module" src="../js/app.js"></script>

@@ -29,6 +29,7 @@ export class AuthService {
 
         const salt = CryptoUtils.generateSalt();
         const hashedPassword = await CryptoUtils.hashPassword(password, salt);
+        const hashedSecurityAnswer = await CryptoUtils.hashPassword(securityAnswer.trim().toLowerCase(), salt);
 
         const newUser = new User(
             username,
@@ -36,7 +37,7 @@ export class AuthService {
             fName,
             lName,
             securityQuestion,
-            securityAnswer,
+            hashedSecurityAnswer,
             salt
         );
 
@@ -93,13 +94,15 @@ export class AuthService {
         return user.securityQuestion;
     }
 
-    verifySecurityAnswer(username, answer) {
+    async verifySecurityAnswer(username, answer) {
         const users = Storage.get(this.usersKey) || {};
         const user = users[username.trim()];
         if (!user) throw new Error('User not found.');
         
-        // Simple case-insensitive match for basic usability
-        if (user.securityAnswer.trim().toLowerCase() !== answer.trim().toLowerCase()) {
+        // Hash the provided answer with the user's salt for comparison
+        const hashedAnswer = await CryptoUtils.hashPassword(answer.trim().toLowerCase(), user.salt || '');
+        
+        if (user.securityAnswer !== hashedAnswer) {
             throw new Error('Incorrect security answer.');
         }
         return true;

@@ -43,7 +43,7 @@ export function initForgotPassword(authService) {
         }
     });
 
-    verifyAnswerBtn?.addEventListener('click', () => {
+    verifyAnswerBtn?.addEventListener('click', async () => {
         const answer = document.getElementById('securityAnswer').value.trim();
         if (!answer) {
             errorBox.textContent = 'Please provide an answer.';
@@ -51,7 +51,7 @@ export function initForgotPassword(authService) {
         }
 
         try {
-            authService.verifySecurityAnswer(currentUsername, answer);
+            await authService.verifySecurityAnswer(currentUsername, answer);
             step2.classList.add('hidden');
             step3.classList.remove('hidden');
             errorBox.textContent = '';

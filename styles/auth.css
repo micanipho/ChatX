@@ -192,11 +192,16 @@
     }
     
     /* Larger input fields for better mobile usability */
-    .forms input {
+    .forms input,
+    .forms select {
         padding: 0.75rem 0.875rem;
         font-size: 1rem;
         min-height: 44px;
         box-sizing: border-box;
+    }
+    
+    .forms select {
+        padding-right: 2.5rem;
     }
     
     /* Better label spacing on mobile */
