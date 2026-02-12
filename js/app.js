@@ -34,12 +34,12 @@ startChatBtn?.addEventListener('click', () => {
 });
 
 const handleAuth = (form, action, redirect) => {
-    form?.addEventListener('submit', (event) => {
+    form?.addEventListener('submit', async (event) => {
         event.preventDefault();
         const data = Object.fromEntries(new FormData(form).entries());
 
         try {
-            const result = action(data);
+            const result = await action(data);
             if (redirect) globalThis.location.href = redirect;
             if (result) {
                 console.log('Logged in user:', result);
@@ -110,7 +110,7 @@ if (forgotPasswordForm) {
         }
     });
 
-    forgotPasswordForm.addEventListener('submit', (e) => {
+    forgotPasswordForm.addEventListener('submit', async (e) => {
         e.preventDefault();
         const newPassword = document.getElementById('newPassword').value;
         const confirmNewPassword = document.getElementById('confirmNewPassword').value;
@@ -121,7 +121,7 @@ if (forgotPasswordForm) {
         }
 
         try {
-            authService.resetPassword(currentUsername, newPassword);
+            await authService.resetPassword(currentUsername, newPassword);
             alert('Password reset successfully! Please login with your new password.');
             globalThis.location.href = './log-in.html';
         } catch (error) {
@@ -318,7 +318,7 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
 
         // Save Password Button Logic
         const savePasswordBtn = document.getElementById('save-password-btn');
-        savePasswordBtn?.addEventListener('click', () => {
+        savePasswordBtn?.addEventListener('click', async () => {
             const currentPasswordInput = document.getElementById('current-password-input');
             const newPasswordInput = document.getElementById('new-password-input');
             const confirmPasswordInput = document.getElementById('confirm-password-input');
@@ -347,19 +347,24 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
                 return;
             }
 
-            // Update password using UserService with spreading
-            const updatedUser = chatService.userService.updateUser(username, { password: newPassword });
+            // Update password using AuthService with hashing
+            try {
+                const success = await authService.resetPassword(username, newPassword);
 
-            if (updatedUser) {
-                Storage.setSession('loggedInUser', updatedUser);
-                
-                // Clear form
-                if (currentPasswordInput) currentPasswordInput.value = '';
-                if (newPasswordInput) newPasswordInput.value = '';
-                if (confirmPasswordInput) confirmPasswordInput.value = '';
+                if (success) {
+                    const updatedUser = authService.getCurrentUser();
+                    Storage.setSession('loggedInUser', updatedUser);
+                    
+                    // Clear form
+                    if (currentPasswordInput) currentPasswordInput.value = '';
+                    if (newPasswordInput) newPasswordInput.value = '';
+                    if (confirmPasswordInput) confirmPasswordInput.value = '';
 
-                hideModal(changePasswordModal);
-                alert('Password changed successfully!');
+                    hideModal(changePasswordModal);
+                    alert('Password changed successfully!');
+                }
+            } catch (error) {
+                alert(error.message);
             }
         });
 
