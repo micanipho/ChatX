@@ -128,19 +128,16 @@ if (forgotPasswordForm) {
 
 
 const profileCircle = document.getElementById('profile-circle');
-if (profileCircle) {
+const profileCircleMobile = document.getElementById('profile-circle-mobile');
+
+if (profileCircle || profileCircleMobile) {
     const user = authService.getCurrentUser();
     if (user) {
-        const { firstName, lastName, fName, lName, username, profilePicture } = user;
-        let initials = '';
+        const displayName = chatService.getUserDisplayName(user);
+        const initials = chatService.getInitials(displayName);
         
-        if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-        else if (fName && lName) initials = (fName.charAt(0) + lName.charAt(0)).toUpperCase();
-        else if (firstName) initials = firstName.charAt(0).toUpperCase();
-        else if (username) initials = username.slice(0, 2).toUpperCase();
-        
-        // Sidebar Initials
-        profileCircle.textContent = initials;
+        if (profileCircle) profileCircle.textContent = initials;
+        if (profileCircleMobile) profileCircleMobile.textContent = initials;
     }
 }
 
@@ -175,17 +172,12 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
         if (profileName) profileName.textContent = `${firstName || fName || ''} ${lastName || lName || ''}`.trim() || username;
         if (profileUsername) profileUsername.textContent = `@${username}`;
 
-        // Display avatar or initials
-        if (profilePicture) {
-             if (profileImgAvatar) {
-                profileImgAvatar.src = profilePicture;
-                profileImgAvatar.classList.remove('hidden');
-                if (profileInitialsAvatar) profileInitialsAvatar.classList.add('hidden');
-            }
-        } else if (profileInitialsAvatar) {
+        // Force Initials on Profile Header
+        if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
+        if (profileInitialsAvatar) {
             profileInitialsAvatar.textContent = initials;
             profileInitialsAvatar.classList.remove('hidden');
-            if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
+            profileInitialsAvatar.className = 'profile-initials-avatar'; // Reset to standard profile style
         }
 
         // Load and display groups
@@ -210,6 +202,50 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
                 groupsList.innerHTML = '<p class="placeholder-text">You are not part of any groups yet.</p>';
             }
         }
+
+        // Online Users Logic
+        const onlineUsersList = document.getElementById('online-users-list');
+        
+        const renderOnlineUsers = () => {
+            if (!onlineUsersList) return;
+            
+            const users = chatService.userService.getUsers();
+            const onlineUsers = users.filter(u => u.username !== username && u.isOnline);
+
+            if (onlineUsers.length > 0) {
+                onlineUsersList.innerHTML = onlineUsers.map(u => {
+                    const displayName = chatService.getUserDisplayName(u);
+                    const initials = chatService.getInitials(displayName);
+
+                    return `
+                        <div class="user-item" onclick="globalThis.location.href='../pages/chat.html?contact=${encodeURIComponent(u.username)}'">
+                            <div class="user-avatar-wrapper">
+                                <div class="user-avatar-initials">${initials}</div>
+                                <div class="user-status-dot"></div>
+                            </div>
+                            <div class="user-info-text">
+                                <p class="user-info-name">${displayName}</p>
+                                <p class="user-info-status">Online</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                onlineUsersList.innerHTML = '<p class="placeholder-text">No users are currently online.</p>';
+            }
+        };
+
+        renderOnlineUsers();
+
+        // Listen for status changes across tabs
+        globalThis.addEventListener('storage', (e) => {
+            if (e.key === 'userData') {
+                chatService.userService.refreshUsers();
+                renderOnlineUsers();
+            }
+        });
+
+        // Modal Toggle Functions
 // ... [Modal Toggle and other profile logic follows]
 
         // Modal Toggle Functions
@@ -435,30 +471,12 @@ cancelGroupBtn?.addEventListener('click', () => toggleModal(false));
 // Mobile action buttons (duplicates of sidebar buttons for mobile view)
 const createGroupBtnMobile = document.getElementById('chat-btn-mobile');
 const logoutBtnMobile = document.getElementById('logout-btn-mobile');
-const profileCircleMobile = document.getElementById('profile-circle-mobile');
 
 // Wire up mobile buttons to same functionality as sidebar buttons
 createGroupBtnMobile?.addEventListener('click', () => toggleModal(true));
 logoutBtnMobile?.addEventListener('click', () => {
     showLogoutModal();
 });
-
-// Populate mobile profile circle with initials
-if (profileCircleMobile) {
-    const user = authService.getCurrentUser();
-    if (user) {
-        const { firstName, lastName, fName, lName, username } = user;
-        let initials = '';
-        
-        if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-        else if (fName && lName) initials = (fName.charAt(0) + lName.charAt(0)).toUpperCase();
-        else if (firstName) initials = firstName.charAt(0).toUpperCase();
-        else if (username) initials = username.slice(0, 2).toUpperCase();
-        
-        profileCircleMobile.textContent = initials;
-    }
-}
-
 
 // ---- Chat Filtering Logic ----
 const allChatsTab = document.querySelector('.tab-all');

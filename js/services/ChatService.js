@@ -187,17 +187,25 @@ export class ChatService {
     formatTimestamp(timestamp) {
         if (!timestamp) return '';
         
-        try {
-            const date = new Date(timestamp);
-            // Check if date is valid
-            if (Number.isNaN(date.getTime())) {
-                return ''; // Return empty string for invalid dates
-            }
-            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', hour12: true });
-        } catch (e) {
-            console.error('Failed to format timestamp:', timestamp, e);
-            return ''; // Return empty string if parsing fails
+        const now = new Date();
+        const date = new Date(timestamp);
+        
+        const diffInHours = (now - date) / (1000 * 60 * 60);
+        
+        if (diffInHours < 24 && now.getDate() === date.getDate()) {
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
         }
+        
+        return date.toLocaleDateString([], { month: 'short', day: 'numeric' });
+    }
+
+    getInitials(name) {
+        if (!name) return '?';
+        const parts = name.trim().split(/\s+/);
+        if (parts.length >= 2) {
+            return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
+        }
+        return name.slice(0, 2).toUpperCase();
     }
 
     renderChats(container, viewContainer, filterType = 'all', searchQuery = '') {
@@ -255,6 +263,7 @@ export class ChatService {
             const displayName = this.getUserDisplayName(conv);
             const displayMessage = conv.lastMessage?.text || '<i>No messages yet</i>';
             const displayTime = this.formatTimestamp(conv.time) || '';
+            const initials = this.getInitials(displayName);
             
             let status = null;
             if (conv.type === 'user') {
@@ -263,7 +272,7 @@ export class ChatService {
 
             chatItem.innerHTML = `
                 <div class="avatar-container">
-                    <img src="${conv.avatar}" alt="${displayName}" class="chat-avatar">
+                    <div class="initials-avatar">${initials}</div>
                     ${status ? `<span class="status-indicator ${status.isOnline ? 'online' : ''}"></span>` : ''}
                 </div>
                 <div class="chat-info">
@@ -287,7 +296,7 @@ export class ChatService {
         const messages = this.getMessages(contactName);
         const contactUser = this.userService.getUser(contactName);
         const displayName = this.getUserDisplayName(contactUser || { username: contactName });
-        const avatar = contactUser?.profilePicture || `https://i.pravatar.cc/150?u=${contactName.replaceAll(/\s/g, '')}`;
+        const initials = this.getInitials(displayName);
         
         const status = this.getUserStatus(contactName);
         let statusText = `@${contactName}`;
@@ -299,7 +308,7 @@ export class ChatService {
             <div class="chat-view-header">
                 <i class="ri-arrow-left-line back-btn" id="back-to-chats"></i>
                 <div class="avatar-container">
-                    <img src="${avatar}" alt="${displayName}" class="chat-view-avatar">
+                    <div class="initials-avatar">${initials}</div>
                     ${status ? `<span class="status-indicator ${status.isOnline ? 'online' : ''}"></span>` : ''}
                 </div>
                 <div class="chat-view-info">
@@ -311,12 +320,22 @@ export class ChatService {
                 </div>
             </div>
             <div class="chat-view-body" id="chat-messages-body">
-                ${messages.length > 0 ? messages.map(msg => `
-                    <div class="message ${msg.sender === this.currentUser ? 'sent' : 'received'}">
-                        <p>${msg.text}</p>
-                        <span class="time">${this.formatTimestamp(msg.timestamp)}</span>
-                    </div>
-                `).join('') : '<div style="text-align:center; padding:2rem; color:#ccc;">Start the conversation!</div>'}
+                ${(() => {
+                    const isGroup = this.groups.some(g => g.name === contactName);
+                    return messages.length > 0 ? messages.map(msg => {
+                        const isSent = msg.sender === this.currentUser;
+                        const senderUser = !isSent ? this.userService.getUser(msg.sender) : null;
+                        const senderName = senderUser ? this.getUserDisplayName(senderUser) : msg.sender;
+
+                        return `
+                            <div class="message ${isSent ? 'sent' : 'received'}">
+                                ${isGroup && !isSent ? `<span class="message-sender">${senderName}</span>` : ''}
+                                <p>${msg.text}</p>
+                                <span class="time">${this.formatTimestamp(msg.timestamp)}</span>
+                            </div>
+                        `;
+                    }).join('') : '<div style="text-align:center; padding:2rem; color:#ccc;">Start the conversation!</div>';
+                })()}
             </div>
             <div class="chat-view-footer">
                 <input type="text" id="message-input" placeholder="Type a message...">
