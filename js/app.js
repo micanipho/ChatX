@@ -1,5 +1,6 @@
 import { AuthService } from './services/AuthService.js';
 import { ChatService } from './services/ChatService.js';
+import { Storage } from './utils/Storage.js';
 
 const authService = new AuthService();
 const chatService = new ChatService();
@@ -56,6 +57,7 @@ const handleAuth = (form, action, redirect) => {
 handleAuth(signupForm, (data) => authService.register(data), './log-in.html');
 handleAuth(loginForm, (data) => authService.login(data.username, data.password), './chat.html');
 
+
 const profileCircle = document.getElementById('profile-circle');
 if (profileCircle) {
     const user = authService.getCurrentUser();
@@ -70,34 +72,229 @@ if (profileCircle) {
         
         // Sidebar Initials
         profileCircle.textContent = initials;
+    }
+}
 
-        // Profile Page Logic
-        const profileName = document.getElementById('profile-name');
-        const profileUsername = document.getElementById('profile-username');
-        const profileImgLarge = document.getElementById('profile-img-large');
-        const profileInitialsLarge = document.getElementById('profile-initials-large');
+// Profile Page Logic (independent of chat page)
+const profileName = document.getElementById('profile-name');
+const profileUsername = document.getElementById('profile-username');
+const profileImgAvatar = document.getElementById('profile-img-avatar');
+const profileInitialsAvatar = document.getElementById('profile-initials-avatar');
+
+if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar) {
+    const user = authService.getCurrentUser();
+    if (user) {
+        const { firstName, lastName, fName, lName, username, profilePicture } = user;
+        let initials = '';
+        
+        if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
+        else if (fName && lName) initials = (fName.charAt(0) + lName.charAt(0)).toUpperCase();
+        else if (firstName) initials = firstName.charAt(0).toUpperCase();
+        else if (username) initials = username.slice(0, 2).toUpperCase();
 
         if (profileName) profileName.textContent = `${firstName || fName || ''} ${lastName || lName || ''}`.trim() || username;
         if (profileUsername) profileUsername.textContent = `@${username}`;
 
+        // Display avatar or initials
         if (profilePicture) {
-             if (profileImgLarge) {
-                profileImgLarge.src = profilePicture;
-                profileImgLarge.classList.remove('hidden');
-                if (profileInitialsLarge) profileInitialsLarge.classList.add('hidden');
+             if (profileImgAvatar) {
+                profileImgAvatar.src = profilePicture;
+                profileImgAvatar.classList.remove('hidden');
+                if (profileInitialsAvatar) profileInitialsAvatar.classList.add('hidden');
             }
-        } else if (profileInitialsLarge) {
-            profileInitialsLarge.textContent = initials;
-            profileInitialsLarge.classList.remove('hidden');
-            if (profileImgLarge) profileImgLarge.classList.add('hidden');
+        } else if (profileInitialsAvatar) {
+            profileInitialsAvatar.textContent = initials;
+            profileInitialsAvatar.classList.remove('hidden');
+            if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
         }
+
+        // Load and display groups
+        const groupsList = document.getElementById('groups-list');
+        if (groupsList) {
+            // Ensure chatService groups are loaded
+            const groups = (chatService && chatService.groups) ? chatService.groups.filter(group => 
+                group.members && group.members.includes(username)
+            ) : [];
+
+            if (groups.length > 0) {
+                groupsList.innerHTML = groups.map(group => `
+                    <div class="group-item">
+                        <div class="group-avatar">${group.name.charAt(0).toUpperCase()}</div>
+                        <div class="group-details">
+                            <p class="group-name">${group.name}</p>
+                            <p class="group-members">${group.members.length} members</p>
+                        </div>
+                    </div>
+                `).join('');
+            } else {
+                groupsList.innerHTML = '<p class="placeholder-text">You are not part of any groups yet.</p>';
+            }
+        }
+
+        // Modal Toggle Functions
+        const updateProfileModal = document.getElementById('update-profile-modal');
+        const changePasswordModal = document.getElementById('change-password-modal');
+
+        const showModal = (modal) => {
+            if (modal) modal.classList.remove('hidden');
+        };
+
+        const hideModal = (modal) => {
+            if (modal) modal.classList.add('hidden');
+        };
+
+        // Update Profile Modal
+        const updateProfileBtn = document.getElementById('update-profile-btn');
+        const closeUpdateModal = document.getElementById('close-update-modal');
+        const cancelUpdateBtn = document.getElementById('cancel-update-btn');
+
+        updateProfileBtn?.addEventListener('click', () => {
+            showModal(updateProfileModal);
+            
+            // Populate username field only
+            const profileUsernameInput = document.getElementById('profile-username-input');
+            if (profileUsernameInput) profileUsernameInput.value = username || '';
+        });
+
+        closeUpdateModal?.addEventListener('click', () => hideModal(updateProfileModal));
+        cancelUpdateBtn?.addEventListener('click', () => hideModal(updateProfileModal));
+
+        // Save Profile Button Logic
+        const saveProfileBtn = document.getElementById('save-profile-btn');
+        saveProfileBtn?.addEventListener('click', () => {
+            const profileUsernameInput = document.getElementById('profile-username-input');
+            const updatedUsername = profileUsernameInput?.value.trim() || '';
+
+            if (!updatedUsername) {
+                alert('Username cannot be empty');
+                return;
+            }
+
+            // Update user data with only username change
+            const updatedUser = {
+                ...user,
+                username: updatedUsername
+            };
+
+            // Save to session and local storage
+            const users = Storage.get('userData') || {};
+            
+            // If username changed, remove old entry and add new one
+            if (updatedUsername !== username) {
+                delete users[username];
+            }
+            
+            users[updatedUsername] = updatedUser;
+            Storage.set('userData', users);
+            Storage.setSession('loggedInUser', updatedUser);
+
+            hideModal(updateProfileModal);
+            alert('Profile updated successfully!');
+            globalThis.location.reload();
+        });
+
+        // Change Password Modal
+        const changePasswordBtn = document.getElementById('change-password-btn');
+        const closePasswordModal = document.getElementById('close-password-modal');
+        const cancelPasswordBtn = document.getElementById('cancel-password-btn');
+
+        changePasswordBtn?.addEventListener('click', () => showModal(changePasswordModal));
+        closePasswordModal?.addEventListener('click', () => hideModal(changePasswordModal));
+        cancelPasswordBtn?.addEventListener('click', () => hideModal(changePasswordModal));
+
+        // Save Password Button Logic
+        const savePasswordBtn = document.getElementById('save-password-btn');
+        savePasswordBtn?.addEventListener('click', () => {
+            const currentPasswordInput = document.getElementById('current-password-input');
+            const newPasswordInput = document.getElementById('new-password-input');
+            const confirmPasswordInput = document.getElementById('confirm-password-input');
+
+            const currentPassword = currentPasswordInput?.value.trim() || '';
+            const newPassword = newPasswordInput?.value.trim() || '';
+            const confirmPassword = confirmPasswordInput?.value.trim() || '';
+
+            if (!currentPassword || !newPassword || !confirmPassword) {
+                alert('All fields are required');
+                return;
+            }
+
+            if (currentPassword !== user.password) {
+                alert('Current password is incorrect');
+                return;
+            }
+
+            if (newPassword !== confirmPassword) {
+                alert('New passwords do not match');
+                return;
+            }
+
+            if (newPassword.length < 6) {
+                alert('New password must be at least 6 characters');
+                return;
+            }
+
+            // Update password
+            const updatedUser = {
+                ...user,
+                password: newPassword
+            };
+
+            const users = Storage.get('userData') || {};
+            users[username] = updatedUser;
+            Storage.set('userData', users);
+            Storage.setSession('loggedInUser', updatedUser);
+
+            // Clear form
+            if (currentPasswordInput) currentPasswordInput.value = '';
+            if (newPasswordInput) newPasswordInput.value = '';
+            if (confirmPasswordInput) confirmPasswordInput.value = '';
+
+            hideModal(changePasswordModal);
+            alert('Password changed successfully!');
+        });
+
+        // Back Button Logic
+        const backProfileBtn = document.getElementById('back-profile-btn');
+        backProfileBtn?.addEventListener('click', () => {
+            globalThis.location.href = './chat.html';
+        });
     }
 }
 
 
+
+
+// Logout Modal Logic
+const logoutModal = document.getElementById('logout-modal');
+const closeLogoutModalBtn = document.getElementById('close-logout-modal-btn');
+const cancelLogoutBtn = document.getElementById('cancel-logout-btn');
+const confirmLogoutBtn = document.getElementById('confirm-logout-btn');
+
+const showLogoutModal = () => {
+    if (logoutModal) {
+        logoutModal.classList.remove('hidden');
+    }
+};
+
+const hideLogoutModal = () => {
+    if (logoutModal) {
+        logoutModal.classList.add('hidden');
+    }
+};
+
+// Show logout modal when logout button is clicked
 logoutBtn?.addEventListener('click', () => {
+    showLogoutModal();
+});
+
+// Hide modal when close button is clicked
+closeLogoutModalBtn?.addEventListener('click', hideLogoutModal);
+cancelLogoutBtn?.addEventListener('click', hideLogoutModal);
+
+// Confirm logout
+confirmLogoutBtn?.addEventListener('click', () => {
     authService.logout();
-    alert('You have been logged out successfully');
+    hideLogoutModal();
     globalThis.location.href = './log-in.html';
 });
 
@@ -148,9 +345,7 @@ const profileCircleMobile = document.getElementById('profile-circle-mobile');
 // Wire up mobile buttons to same functionality as sidebar buttons
 createGroupBtnMobile?.addEventListener('click', () => toggleModal(true));
 logoutBtnMobile?.addEventListener('click', () => {
-    authService.logout();
-    alert('You have been logged out successfully');
-    globalThis.location.href = './log-in.html';
+    showLogoutModal();
 });
 
 // Populate mobile profile circle with initials

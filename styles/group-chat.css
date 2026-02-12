@@ -162,6 +162,22 @@
   color: white;
 }
 
+.btn.danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn.danger:hover {
+  background-color: #c82333;
+}
+
+.modal-body p {
+  margin: 1rem 0;
+  color: var(--text-color);
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
 /* Mobile Responsive Styles for Modal */
 @media (max-width: 768px) {
   .modal {
