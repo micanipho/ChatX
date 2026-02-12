@@ -1,5 +1,3 @@
-"[![Development Continuous Integration](https://github.com/YOUR-USERNAME/ChatX/actions/workflows/ci-dev.yml/badge.svg?branch=main)](https://github.com/YOUR-USERNAME/ChatX/actions/workflows/ci-dev.yml)
-
 # ChatX
 
 ## What is ChatX?

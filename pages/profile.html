@@ -11,23 +11,102 @@
 <body>
     <section class="side-bar">
         <img src="../assets/icons/logo.png" alt="logo" class="side_bar_logo">
-        <a href="../pages/chat.html"><img src="../assets/icons/chat-btn.png" alt="chat" id="chat-btn"></a>
-        <div id="profile-circle" class="profile-circle active"></div>
         <img src="../assets/icons/logout-btn.png" alt="logout" id="logout-btn">
     </section>
     <main class="profile-container">
+        <i class="ri-arrow-left-line" id="back-profile-btn"></i>
+        
+        <!-- Single Unified Card -->
         <div class="profile-card">
-            <div class="profile-pic-wrapper">
-                <img id="profile-img-large" src="" alt="Profile" class="hidden">
-                <div id="profile-initials-large" class="profile-initials-large hidden"></div>
-                <div class="edit-icon">
-                    <i class="ri-pencil-fill"></i>
+            <!-- Profile Header -->
+            <div class="profile-header">
+                <div class="profile-avatar-wrapper">
+                    <img id="profile-img-avatar" src="" alt="Profile" class="hidden">
+                    <div id="profile-initials-avatar" class="profile-initials-avatar hidden"></div>
+                </div>
+                <div class="profile-info">
+                    <h2 id="profile-name">Loading...</h2>
+                    <p id="profile-username">@username</p>
                 </div>
             </div>
-            <h2 id="profile-name">User Name</h2>
-            <p id="profile-username">@username</p>
+
+            <!-- Action Buttons -->
+            <div class="profile-actions">
+                <button id="update-profile-btn" class="btn primary">
+                    <i class="ri-user-settings-line"></i> Update Profile
+                </button>
+                <button id="change-password-btn" class="btn secondary">
+                    <i class="ri-lock-password-line"></i> Change Password
+                </button>
+            </div>
+
+            <!-- Groups and Online Users Grid -->
+            <div class="profile-content-grid">
+                <!-- Groups Section -->
+                <div class="content-section">
+                    <h3><i class="ri-group-line"></i> Your Groups</h3>
+                    <div id="groups-list" class="groups-list">
+                        <!-- Groups will be populated here -->
+                    </div>
+                </div>
+
+                <!-- Online Users Section -->
+                <div class="content-section">
+                    <h3><i class="ri-user-line"></i> Online Users</h3>
+                    <p class="placeholder-text">Coming soon...</p>
+                </div>
+            </div>
         </div>
     </main>
+
+    <!-- Update Profile Modal -->
+    <div id="update-profile-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Update Profile</h2>
+                <span class="close-modal" id="close-update-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="profile-username-input">Username</label>
+                    <input type="text" id="profile-username-input" placeholder="Enter username">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-update-btn" class="btn secondary">Cancel</button>
+                <button id="save-profile-btn" class="btn primary">Save Changes</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Change Password Modal -->
+    <div id="change-password-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Change Password</h2>
+                <span class="close-modal" id="close-password-modal">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="current-password-input">Current Password</label>
+                    <input type="password" id="current-password-input" placeholder="Enter current password">
+                </div>
+                <div class="form-group">
+                    <label for="new-password-input">New Password</label>
+                    <input type="password" id="new-password-input" placeholder="Enter new password">
+                </div>
+                <div class="form-group">
+                    <label for="confirm-password-input">Confirm New Password</label>
+                    <input type="password" id="confirm-password-input" placeholder="Confirm new password">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="cancel-password-btn" class="btn secondary">Cancel</button>
+                <button id="save-password-btn" class="btn primary">Change Password</button>
+            </div>
+        </div>
+    </div>
+
     <script type="module" src="../js/app.js"></script>
 </body>
 </html>
