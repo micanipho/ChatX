@@ -89,14 +89,23 @@
     margin-top: 2rem;
     width: 100%;
 }
+#forgot-password {
+    position: relative;
+    left: 0;
+    margin-left: 0;
+}
 
 @media (max-width: 768px) {
     /* Sign Up Page: CTA is a banner */
     div.CTA {
-        min-height: 30vh;
-        padding: 2rem;
+        min-height: 25vh; /* Reduced height to leave more space for the form */
+        padding: 1.5rem 2rem;
         flex-shrink: 0;
-        /* Inherits gradient from base class */
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
     }
 
     /* Login Page: CTA is full screen wrapper */
@@ -108,13 +117,21 @@
         background: var(--background-color); 
     }
 
+    /* Restore scrolling for auth pages (signup and login) */
+    main {
+        height: auto !important;
+        overflow-y: auto !important;
+        display: flex;
+        flex-direction: column;
+    }
+
     /* Login Page Form Section */
     .log-in-section {
         width: 100%;
         height: 100vh;
         border-radius: 0;
         margin: 0;
-        padding: 2rem;
+        padding: 2rem 1.5rem;
         box-sizing: border-box;
         display: flex;
         flex-direction: column;
@@ -131,29 +148,119 @@
 
     /* Logo adjustment for Login Page */
     main.CTA .cta_nav_logo {
-        margin-bottom: 2rem;
-        width: 60px; 
+        position: absolute;
+        top: 2rem;
+        left: 50%;
+        transform: translateX(-50%);
+        margin-bottom: 0;
+        width: 70px;
+        height: auto;
     }
     
-    /* Sign Up Page Styles */
+    /* Form title sizing for mobile */
+    .form-title {
+        font-size: 1.5rem;
+        text-align: center;
+    }
+    
+    /* Sign Up Page Styles - Banner adjustments */
     div.CTA .cta-title {
-        font-size: 2rem;
-        display: block; /* Ensure visible on sign up */
+        font-size: 1.75rem; /* Slightly smaller for mobile */
+        display: block;
     }
     
     div.CTA .subtitle {
-        font-size: 1rem;
-        display: block; /* Ensure visible on sign up */
+        font-size: 0.9rem;
+        display: block;
     }
 
     div.CTA .cta_nav_logo {
-        justify-content: flex-start;
-        width: auto; /* Reset width for sign up banner */
-        margin-bottom: 0;
+        margin-bottom: 0.5rem;
+        width: 50px; /* Consistent logo size on signup banner */
     }
 
     .form-container {
-        padding: 2rem;
+        padding: 1.5rem; /* Slightly tighter padding for long forms */
         flex: 1;
+        background-color: var(--background-color);
+    }
+    
+    /* Better form spacing on mobile */
+    .forms {
+        gap: 1rem; /* Tighter gap for longer signup form */
+        max-width: 100%;
+    }
+    
+    /* Larger input fields for better mobile usability */
+    .forms input {
+        padding: 0.75rem 0.875rem;
+        font-size: 1rem;
+        min-height: 44px;
+        box-sizing: border-box;
+    }
+    
+    /* Better label spacing on mobile */
+    .forms label {
+        margin-bottom: -0.5rem;
+        font-size: 0.9rem;
+    }
+    
+    /* Improved button spacing */
+    .forms .btn {
+        margin-top: 0.5rem;
+        padding: 0.875rem;
+        min-height: 48px;
+        font-size: 1rem;
+    }
+    
+    /* Better error box visibility */
+    .forms .errorBox {
+        height: auto;
+        min-height: 1rem;
+        font-size: 0.85rem;
+    }
+    
+    /* Form query text sizing */
+    .form-query {
+        font-size: 0.9rem;
+        margin-bottom: -0.5rem;
+        text-align: center;
+    }
+}
+
+/* Additional breakpoint for smaller mobile devices */
+@media (max-width: 480px) {
+    /* Login Page Form Section for small screens */
+    .log-in-section {
+        padding: 1.5rem 1rem;
+    }
+    
+    /* Smaller logo on very small screens */
+    main.CTA .cta_nav_logo {
+        width: 60px;
+        top: 1.5rem;
+    }
+    
+    /* Smaller title for very small screens */
+    .form-title {
+        font-size: 1.35rem;
+    }
+    
+    /* Reduce gaps on very small screens */
+    .forms {
+        gap: 1rem;
+    }
+    
+    .form-container {
+        padding: 1.5rem 1rem;
+    }
+}
+
+/* Tablet landscape optimization */
+@media (min-width: 769px) and (max-width: 1024px) {
+    .log-in-section {
+        width: 90%;
+        max-width: 600px;
+        padding: 4rem 6rem;
     }
 }

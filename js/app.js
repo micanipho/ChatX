@@ -57,23 +57,97 @@ const handleAuth = (form, action, redirect) => {
 handleAuth(signupForm, (data) => authService.register(data), './log-in.html');
 handleAuth(loginForm, (data) => authService.login(data.username, data.password), './chat.html');
 
+// Forgot Password Logic
+const forgotPasswordForm = document.getElementById('forgot_password_form');
+if (forgotPasswordForm) {
+    const step1 = document.getElementById('step-1');
+    const step2 = document.getElementById('step-2');
+    const step3 = document.getElementById('step-3');
+    
+    const verifyUsernameBtn = document.getElementById('verify-username-btn');
+    const verifyAnswerBtn = document.getElementById('verify-answer-btn');
+    const displayQuestion = document.getElementById('display-question');
+    
+    let currentUsername = '';
+
+    verifyUsernameBtn?.addEventListener('click', () => {
+        const username = document.getElementById('username').value.trim();
+        if (!username) {
+            errorBox.textContent = 'Please enter a username.';
+            return;
+        }
+
+        try {
+            const question = authService.getSecurityQuestion(username);
+            currentUsername = username;
+            displayQuestion.textContent = question;
+            step1.classList.add('hidden');
+            step2.classList.remove('hidden');
+            errorBox.textContent = '';
+        } catch (error) {
+            errorBox.textContent = error.message;
+        }
+    });
+
+    verifyAnswerBtn?.addEventListener('click', () => {
+        const answer = document.getElementById('securityAnswer').value.trim();
+        if (!answer) {
+            errorBox.textContent = 'Please provide an answer.';
+            return;
+        }
+
+        try {
+            authService.verifySecurityAnswer(currentUsername, answer);
+            step2.classList.add('hidden');
+            step3.classList.remove('hidden');
+            errorBox.textContent = '';
+        } catch (error) {
+            errorBox.textContent = error.message;
+        }
+    });
+
+    forgotPasswordForm.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const newPassword = document.getElementById('newPassword').value;
+        const confirmNewPassword = document.getElementById('confirmNewPassword').value;
+
+        if (newPassword !== confirmNewPassword) {
+            errorBox.textContent = 'Passwords do not match.';
+            return;
+        }
+
+        try {
+            authService.resetPassword(currentUsername, newPassword);
+            alert('Password reset successfully! Please login with your new password.');
+            globalThis.location.href = './log-in.html';
+        } catch (error) {
+            errorBox.textContent = error.message;
+        }
+    });
+}
+
 
 const profileCircle = document.getElementById('profile-circle');
-if (profileCircle) {
+const profileCircleMobile = document.getElementById('profile-circle-mobile');
+
+if (profileCircle || profileCircleMobile) {
     const user = authService.getCurrentUser();
     if (user) {
-        const { firstName, lastName, fName, lName, username, profilePicture } = user;
-        let initials = '';
+        const displayName = chatService.getUserDisplayName(user);
+        const initials = chatService.getInitials(displayName);
         
-        if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-        else if (fName && lName) initials = (fName.charAt(0) + lName.charAt(0)).toUpperCase();
-        else if (firstName) initials = firstName.charAt(0).toUpperCase();
-        else if (username) initials = username.slice(0, 2).toUpperCase();
-        
-        // Sidebar Initials
-        profileCircle.textContent = initials;
+        if (profileCircle) profileCircle.textContent = initials;
+        if (profileCircleMobile) profileCircleMobile.textContent = initials;
     }
 }
+
+// Handle Online Status on Page Close
+globalThis.addEventListener('beforeunload', () => {
+    const user = authService.getCurrentUser();
+    if (user) {
+        authService.updateStatus(user.username, false);
+    }
+});
 
 // Profile Page Logic (independent of chat page)
 const profileName = document.getElementById('profile-name');
@@ -84,6 +158,9 @@ const profileInitialsAvatar = document.getElementById('profile-initials-avatar')
 if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar) {
     const user = authService.getCurrentUser();
     if (user) {
+        // Ensure user is marked as online when they visit their profile
+        authService.updateStatus(user.username, true);
+        
         const { firstName, lastName, fName, lName, username, profilePicture } = user;
         let initials = '';
         
@@ -95,17 +172,12 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
         if (profileName) profileName.textContent = `${firstName || fName || ''} ${lastName || lName || ''}`.trim() || username;
         if (profileUsername) profileUsername.textContent = `@${username}`;
 
-        // Display avatar or initials
-        if (profilePicture) {
-             if (profileImgAvatar) {
-                profileImgAvatar.src = profilePicture;
-                profileImgAvatar.classList.remove('hidden');
-                if (profileInitialsAvatar) profileInitialsAvatar.classList.add('hidden');
-            }
-        } else if (profileInitialsAvatar) {
+        // Force Initials on Profile Header
+        if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
+        if (profileInitialsAvatar) {
             profileInitialsAvatar.textContent = initials;
             profileInitialsAvatar.classList.remove('hidden');
-            if (profileImgAvatar) profileImgAvatar.classList.add('hidden');
+            profileInitialsAvatar.className = 'profile-initials-avatar'; // Reset to standard profile style
         }
 
         // Load and display groups
@@ -118,7 +190,7 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
 
             if (groups.length > 0) {
                 groupsList.innerHTML = groups.map(group => `
-                    <div class="group-item">
+                    <div class="group-item" style="cursor: pointer;" onclick="globalThis.location.href='../pages/chat.html?contact=${encodeURIComponent(group.name)}'">
                         <div class="group-avatar">${group.name.charAt(0).toUpperCase()}</div>
                         <div class="group-details">
                             <p class="group-name">${group.name}</p>
@@ -130,6 +202,51 @@ if (profileName || profileUsername || profileImgAvatar || profileInitialsAvatar)
                 groupsList.innerHTML = '<p class="placeholder-text">You are not part of any groups yet.</p>';
             }
         }
+
+        // Online Users Logic
+        const onlineUsersList = document.getElementById('online-users-list');
+        
+        const renderOnlineUsers = () => {
+            if (!onlineUsersList) return;
+            
+            const users = chatService.userService.getUsers();
+            const onlineUsers = users.filter(u => u.username !== username && u.isOnline);
+
+            if (onlineUsers.length > 0) {
+                onlineUsersList.innerHTML = onlineUsers.map(u => {
+                    const displayName = chatService.getUserDisplayName(u);
+                    const initials = chatService.getInitials(displayName);
+
+                    return `
+                        <div class="user-item" onclick="globalThis.location.href='../pages/chat.html?contact=${encodeURIComponent(u.username)}'">
+                            <div class="user-avatar-wrapper">
+                                <div class="user-avatar-initials">${initials}</div>
+                                <div class="user-status-dot"></div>
+                            </div>
+                            <div class="user-info-text">
+                                <p class="user-info-name">${displayName}</p>
+                                <p class="user-info-status">Online</p>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            } else {
+                onlineUsersList.innerHTML = '<p class="placeholder-text">No users are currently online.</p>';
+            }
+        };
+
+        renderOnlineUsers();
+
+        // Listen for status changes across tabs
+        globalThis.addEventListener('storage', (e) => {
+            if (e.key === 'userData') {
+                chatService.userService.refreshUsers();
+                renderOnlineUsers();
+            }
+        });
+
+        // Modal Toggle Functions
+// ... [Modal Toggle and other profile logic follows]
 
         // Modal Toggle Functions
         const updateProfileModal = document.getElementById('update-profile-modal');
@@ -305,8 +422,22 @@ const chatViewContainer = document.querySelector('.chat-view');
 if (chatListContainer && chatViewContainer) {
     const currentUser = authService.getCurrentUser();
     if(currentUser) {
+        // Ensure user is marked as online when they land on the chat page
+        authService.updateStatus(currentUser.username, true);
+        
         chatService.setCurrentUser(currentUser);
         chatService.renderChats(chatListContainer, chatViewContainer);
+
+        // Handle URL parameters for pre-selected contact/group
+        const urlParams = new URLSearchParams(globalThis.location.search);
+        const contactParam = urlParams.get('contact');
+        if (contactParam) {
+            chatService.renderChatView(chatViewContainer, contactParam);
+            
+            // Toggle Mobile View if pre-selected
+            const mainElement = document.querySelector('main');
+            if (mainElement) mainElement.classList.add('mobile-view-active');
+        }
     }
 }
 
@@ -340,30 +471,12 @@ cancelGroupBtn?.addEventListener('click', () => toggleModal(false));
 // Mobile action buttons (duplicates of sidebar buttons for mobile view)
 const createGroupBtnMobile = document.getElementById('chat-btn-mobile');
 const logoutBtnMobile = document.getElementById('logout-btn-mobile');
-const profileCircleMobile = document.getElementById('profile-circle-mobile');
 
 // Wire up mobile buttons to same functionality as sidebar buttons
 createGroupBtnMobile?.addEventListener('click', () => toggleModal(true));
 logoutBtnMobile?.addEventListener('click', () => {
     showLogoutModal();
 });
-
-// Populate mobile profile circle with initials
-if (profileCircleMobile) {
-    const user = authService.getCurrentUser();
-    if (user) {
-        const { firstName, lastName, fName, lName, username } = user;
-        let initials = '';
-        
-        if (firstName && lastName) initials = (firstName.charAt(0) + lastName.charAt(0)).toUpperCase();
-        else if (fName && lName) initials = (fName.charAt(0) + lName.charAt(0)).toUpperCase();
-        else if (firstName) initials = firstName.charAt(0).toUpperCase();
-        else if (username) initials = username.slice(0, 2).toUpperCase();
-        
-        profileCircleMobile.textContent = initials;
-    }
-}
-
 
 // ---- Chat Filtering Logic ----
 const allChatsTab = document.querySelector('.tab-all');

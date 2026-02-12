@@ -16,6 +16,60 @@
     box-shadow: 0 4px 12px var(--primary-color--dark);
 }
 
+/* Standardized Initials Avatars */
+.initials-avatar {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: var(--primary-color--dark);
+    color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: 600;
+    font-size: 1.2rem;
+    text-transform: uppercase;
+}
+
+/* Status Indicators */
+.status-indicator {
+    display: inline-block;
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    border: 2px solid var(--background-color);
+    background-color: #888; /* Offline/Default */
+}
+
+.status-indicator.online {
+    background-color: #4CAF50; /* Green */
+}
+
+.avatar-container {
+    position: relative;
+    display: flex;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+}
+
+.avatar-container.small {
+    width: 40px;
+    height: 40px;
+}
+
+.avatar-container.large {
+    width: 100px;
+    height: 100px;
+}
+
+.avatar-container .status-indicator {
+    position: absolute;
+    bottom: 2px;
+    right: 2px;
+    z-index: 2;
+}
+
 .menu_btn {
     display: none;
     font-size: 1.5rem;
