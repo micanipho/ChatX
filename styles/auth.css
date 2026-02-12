@@ -17,10 +17,9 @@
     background: linear-gradient(199deg, var(--secondary-color) 15%, #bfddd2 50%, var(--primary-color) 80%);
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
-    align-items: flex-start;
+    justify-content: center;
+    align-items: center;
     padding: 3rem;
-    padding-bottom: 12rem;
     color: var(--background-color);
     font-family: 'Poppins', sans-serif;
     backdrop-filter: blur(15px);
